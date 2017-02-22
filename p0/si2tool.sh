@@ -70,16 +70,16 @@ run_ant() {
 }
 
 show_help() {
-	echo <<-EOF
+	cat <<-EOF
 	setup -- Configuracion inicial
-	db 	  -- Conecta con la base de datos
-	vm 	  -- Arranca la maquina virtual
-	ssh	  -- Se conecta via ssh
-	log	  -- Muestra el log del servidor
+	db    -- Conecta con la base de datos
+	vm    -- Arranca la maquina virtual
+	ssh   -- Se conecta via ssh
+	log   -- Muestra el log del servidor
 	EOF
 }
 
-CMDLET="$1"
+CMDLET="${1:-help}"
 shift
 case "$CMDLET" in
 	setup 	) setup      	"$@" ;;
