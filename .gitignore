@@ -1,0 +1,15 @@
+
+# Enunciados
+*.pdf
+
+# Memoria
+*.doc
+*.odx
+
+# Archivos comprimidos
+*.tgz
+*.zip
+
+# Maquina virtual
+si2srv/
+
