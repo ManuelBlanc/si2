@@ -14,7 +14,7 @@ BOLD=$(tput bold)
 RED=$(tput setaf 1)
 
 # Utilidades
-INFO()  { verbose && echo "==> $BOLD$1$NORMAL"; }
+INFO()  { echo "==> $BOLD$1$NORMAL"; }
 abort() { echo "${RED}error:${NORMAL} $1"; exit 1; }
 # ----------------------------------------------------------------------------
 
@@ -23,21 +23,23 @@ abort() { echo "${RED}error:${NORMAL} $1"; exit 1; }
 
 
 setup() {
-	## Comprobamos que este la maquina virtual en el mismo directorio
-	[[ -f si2srv.tgz ]] || abort 'No se encontro la maquina virtual si2srv.tgz'
-	
-	## La descomprimimos
-	tar xzvf si2srv.tgz
+	## Comprobamos que este la carpeta con la maquina virtual
+	if [[ ! -d si2srv/ ]]; then
+		INFO 'No se encontro si2srv/, intentando descomprimir si2srv.tgz'
+		## Intentamos descomprimir el .tgz
+		tar xzvf si2srv.tgz || abort 'No se pudo descomprimir el fichero ./si2srv.tgz'
+	fi
+
+	## Configuramos la interfaz nueva para el host
+	INFO 'Configurando la interfaz eth0. Se requiere la constraseña del usuario.'
 	sudo /opt/si2/virtualip.sh eth0
 
 	## Permitir cerrar maquina virtual
-	if ! grep; then
+	if ! grep '^pref.vmplayer.exit.vmAction' ~/.vmware/preferences; then
 		echo 'pref.vmplayer.exit.vmAction = "disconnect"' >> ~/.vmware/preferences
 	fi
 
-	## Generar y copiar identidad para ssh sin contraseña
-	ssh-keygen -t rsa
-	ssh-copy-id $USR_HOST
+	INFO "Para poder conectarse por ssh, ejecutar $0 ssh0"
 }
 
 connect_db() {
@@ -47,9 +49,17 @@ connect_db() {
 }
 
 launch_vm() {
-	local VM="${1:-si2srv/si2srv.vmx}"
+	INFO 'Ejecutando si2fixMAC.sh'
+	(cd ./si2srv/ && ./si2fixMAC.sh 2401 11 1)
+
 	INFO "Arrancando la maquina virtual"
-	vmplayer "$VM"
+	vmplayer si2srv/si2srv.vmx
+}
+
+setup_ssh() {
+	ssh-keygen -t rsa
+	ssh-add
+	ssh-copy-id $VM_HOST
 }
 
 connect_ssh() {
@@ -57,9 +67,18 @@ connect_ssh() {
 	ssh "$VM_HOST"
 }
 
+do_scp() {
+	scp "$1" "$VM_HOST:/home/si2"
+}
+
+do_asadmin() {
+	local CMD="${1:-start-domain domain1}"
+	ssh $VM_HOST "$VM_J2EE/bin/asadmin $CMD"
+}
+
 show_log() {
 	INFO "Mostrando log de Glassfish"
-	ssh $USR_HOST $VM_J2EE/domains/domain1/logs/server.log | less
+	ssh $VM_HOST "$VM_J2EE/domains/domain1/logs/server.log" | less
 }
 
 run_ant() {
@@ -71,11 +90,12 @@ run_ant() {
 
 show_help() {
 	cat <<-EOF
-	setup -- Configuracion inicial
-	db    -- Conecta con la base de datos
-	vm    -- Arranca la maquina virtual
-	ssh   -- Se conecta via ssh
-	log   -- Muestra el log del servidor
+	setup	-- Configuracion inicial
+	db   	-- Conecta con la base de datos
+	vm   	-- Arranca la maquina virtual
+	ssh  	-- Se conecta via ssh
+	scp  	-- Copia archivos a la maquina virtual
+	log  	-- Muestra el log del servidor
 	EOF
 }
 
@@ -86,6 +106,9 @@ case "$CMDLET" in
 	db    	) connect_db 	"$@" ;;
 	vm    	) launch_vm  	"$@" ;;
 	ssh   	) connect_ssh	"$@" ;;
+	ssh0  	) setup_ssh  	"$@" ;;
+	asa   	) do_asadmin 	"$@" ;;
+	scp   	) do_scp     	"$@" ;;
 	log   	) show_log   	"$@" ;;
 	ant   	) run_ant    	"$@" ;;
 	*|help	) show_help  	     ;;
