@@ -27,7 +27,7 @@ cp_client() {
 }
 
 
-cp_client visa/error/
+cp -r ../P1-base/src/ssii2/visa/error ./src/client/ssii2/visa/
 cp_client visa/ValidadorTarjeta.java
 cp_client filtros/CompruebaSesion.java
 cp_client controlador/ComienzaPago.java
@@ -39,17 +39,16 @@ cp_server visa/dao/DBTester.java ./src/server/ssii2/visa/DBTester.java
 cp_server visa/PagoBean.java
 cp_server visa/TarjetaBean.java
 
-cp ../P1-base/postgresql-jdbc4.jar .
-
-# Cositas extras que no vienen en el enunciado
-cp_client ../P1-base/src/ssii2/visa/PagoBean.java
-cp_client ../P1-base/src/ssii2/visa/TarjetaBean.java
-find src/client/ssii2 -type f -print0 | xargs -0 sed -i 's/VisaDAO/VisaDAOWS/g'
-
-if [[ -f './src/server/ssii2/visa/VisaDAOWS.java' ]];
+if [ -f './src/server/ssii2/visa/VisaDAOWS.java' ]; then
 	echo "$(tput setaf 1) - ACHTUNG!!! - $(tput sgr0)"
 	echo 'No se ha copiado /src/server/ssii2/visa/VisaDAOWS.java'
 	echo 'para que no se sobreescriba trabajo sin querer'
 else
 	cp_server visa/dao/VisaDAO.java ./src/server/ssii2/visa/VisaDAOWS.java
 fi
+
+cp ../P1-base/postgresql-jdbc4.jar .
+
+# Cositas extras que no vienen en el enunciado
+# find src/client/ssii2 -type f -print0 | xargs -0 sed -i 's/VisaDAO/VisaDAOWS/g'
+

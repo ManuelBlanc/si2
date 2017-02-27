@@ -36,9 +36,6 @@ abort() { ERR "$1"; exit 1; }
 
 ## ----------------------------------------------------------------------------
 
-## Comprobamos que este la carpeta con la maquina virtual
-[[ -d si2srv/ ]] || abort "No se encontro la carpeta si2srv/"
-
 cmd__setup() {
 	## Configuramos la interfaz eth0:0 con una IP 10.10.*.* para el host
 	INFO 'Configurando la interfaz eth0:0. Se requiere la constraseña del usuario.'
@@ -59,6 +56,9 @@ cmd__setup() {
 	## una MAC nueva aleatoriamente.
 	# INFO 'Ejecutando si2fixMAC.sh'
 	# (cd ./si2srv/ && ./si2fixMAC.sh 2401 11 1)
+
+	## Comprobamos que este la carpeta con la maquina virtual
+	[[ -d si2srv/ ]] || abort "No se encontro la carpeta si2srv/"
 
 	INFO 'Arrancando la maquina virtual. Puedes cerrarla despues de que arranque.'
 	vmplayer si2srv/si2srv.vmx &
@@ -82,6 +82,9 @@ cmd__setup() {
 	force_color_prompt=true
 	source ~/.bashrc
 
+	export J2EE_HOME="$VM_J2EE"
+	export PATH="$PATH:\$J2EE_HOME/bin"
+
 	alias ..='cd ..'
 	export LS_COLORS='*~=37:di=34:fi=0:ln=32:pi=5:so=33:bd=33:cd=33:or=92:mi=92:ex=31'
 	alias l='ls -F --color'
@@ -90,8 +93,8 @@ cmd__setup() {
 }
 
 cmd__ant()      { J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish' ant "$@";           }
-cmd__psql()     { psql –U alumnodb "${1:-visa}";                                       }
-cmd__ssh()      { ssh "$VM_USER_HOST" "$@";                                                 }
+cmd__psql()     { ssh -t $VM_USER_HOST 'psql -U alumnodb visa';                        }
+cmd__ssh()      { ssh "$VM_USER_HOST" "$@";                                            }
 cmd__upload()   { scp "$1" "$VM_USER_HOST:${2:-/home/si2}";                            }
 cmd__download() { scp "$VM_USER_HOST:$1" "${2:-.}";                                    }
 cmd__asadmin()  { ssh $VM_USER_HOST "$VM_J2EE/bin/asadmin $*"; }
