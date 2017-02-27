@@ -23,6 +23,8 @@ import ssii2.visa.VisaDAOWS;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.BindingProvider;
 
+import java.util.List;
+
 /**
  *
  * @author phaya
@@ -58,13 +60,14 @@ public class GetPagos extends ServletRaiz {
 		BindingProvider bp = (BindingProvider) dao;
 		bp.getRequestContext().put(
 			BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-			getServletContext().getInitParameter("as.host.server"));
+			getServletContext().getInitParameter("url-servidor"));
 
 		/* Se recoge de la petici&oacute;n el par&aacute;metro idComercio*/  
 		String idComercio = request.getParameter(PARAM_ID_COMERCIO);
 		
 		/* Petici&oacute;n de los pagos para el comercio */
-		PagoBean[] pagos = dao.getPagos(idComercio).toArray(new PagoBean[0]);
+        List<PagoBean> pagosList = dao.getPagos(idComercio);
+		PagoBean[] pagos = pagosList.toArray(new PagoBean[pagosList.size()]);
 
         request.setAttribute(ATTR_PAGOS, pagos);
         reenvia("/listapagos.jsp", request, response);

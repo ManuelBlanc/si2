@@ -58,7 +58,7 @@ public class DelPagos extends ServletRaiz {
 		BindingProvider bp = (BindingProvider) dao;
 		bp.getRequestContext().put(
 			BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-			getServletContext().getInitParameter("as.host.server"));
+			getServletContext().getInitParameter("url-servidor"));
 		
 		/* Se recoge de la petici&oacute;n el par&aacute;metro idComercio*/  
 		String idComercio = request.getParameter(PARAM_ID_COMERCIO);

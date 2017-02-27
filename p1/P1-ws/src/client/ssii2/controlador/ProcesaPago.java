@@ -157,7 +157,7 @@ private void printAddresses(HttpServletRequest request, HttpServletResponse resp
 		BindingProvider bp = (BindingProvider) dao;
 		bp.getRequestContext().put(
 			BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-			getServletContext().getInitParameter("as.host.server"));
+			getServletContext().getInitParameter("url-servidor"));
 
 		HttpSession sesion = request.getSession(false);
 		if (sesion != null) {
