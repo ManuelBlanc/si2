@@ -36,7 +36,7 @@ cp_client controlador/DelPagos.java
 cp_client controlador/ServletRaiz.java
 cp_client controlador/ProcesaPago.java
 cp_server visa/dao/DBTester.java ./src/server/ssii2/visa/DBTester.java
-cp_server visa/dao/VisaDAO.java ./src/server/ssii2/visa/VisaDAWS.java
+cp_server visa/dao/VisaDAO.java ./src/server/ssii2/visa/VisaDAOWS.java
 cp_server visa/PagoBean.java
 cp_server visa/TarjetaBean.java
 
