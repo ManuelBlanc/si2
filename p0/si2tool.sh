@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+
+## ESPECIAL: Si nos estan sourceando configuramos el entorno local
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+	export J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish'
+	echo "Exportado: \$J2EE_HOME=$J2EE_HOME"
+
+	alias si2tool="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/si2tool.sh"
+	echo "Definido: si2tool"
+	return 0
+fi
+
 ## Modo sano
 set -eu
 
@@ -26,16 +37,16 @@ abort() { ERR "$1"; exit 1; }
 ## ----------------------------------------------------------------------------
 
 ## Comprobamos que este la carpeta con la maquina virtual
-[[ ! -d si2srv/ ]] || abort "" 
+[[ -d si2srv/ ]] || abort "No se encontro la carpeta si2srv/"
 
 cmd__setup() {
 	## Configuramos la interfaz eth0:0 con una IP 10.10.*.* para el host
-	INFO 'Configurando la interfaz eth0. Se requiere la constraseña del usuario.'
+	INFO 'Configurando la interfaz eth0:0. Se requiere la constraseña del usuario.'
 	sudo /opt/si2/virtualip.sh eth0
 
 	## Permitir cerrar maquina virtual
-	if ! grep '^pref.vmplayer.exit.vmAction' ~/.vmware/preferences; then
-		## TODO: Investigar si esto ayuda a que la VM sea completamente headless
+	if ! grep '^pref.vmplayer.exit.vmAction' ~/.vmware/preferences > /dev/null 2>&1; then
+		INFO 'Añadimos mas preferencias'
 		cat >> ~/.vmware/preferences <<-EOF
 		pref.vmplayer.exit.vmAction = "disconnect" 
 		hints.hideAll = "TRUE"
@@ -53,25 +64,38 @@ cmd__setup() {
 	vmplayer si2srv/si2srv.vmx &
 
 	INFO 'Esperando a que haya conectividad'
+	echo -n '[.'
 	until ping -c1 "$VM_HOST" > /dev/null 2>&1; do
 		echo -n '.'
 		sleep 1
 	done
-	echo # Nueva linea
+	echo '] Conectado!'
 
-	INFO 'Configurando el ssh para poder conectarse con un certificado'
-	ssh-keygen -t rsa
-	ssh-add
-	ssh-copy-id "$VM_USER_HOST"
+	if [[ ! -f ~/.ssh/id_rsa ]]; then
+		INFO 'Configurando el ssh para poder conectarse con un certificado'
+		ssh-keygen -t rsa
+		ssh-add
+		ssh-copy-id "$VM_USER_HOST"
+	fi
+
+	cat <<-EOF | ssh "$VM_USER_HOST" 'cat > .bash_profile'
+	force_color_prompt=true
+	source ~/.bashrc
+
+	alias ..='cd ..'
+	export LS_COLORS='*~=37:di=34:fi=0:ln=32:pi=5:so=33:bd=33:cd=33:or=92:mi=92:ex=31'
+	alias l='ls -F --color'
+	alias ll='l -Ghal'
+	EOF
 }
 
 cmd__ant()      { J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish' ant "$@";           }
 cmd__psql()     { psql –U alumnodb "${1:-visa}";                                       }
-cmd__ssh()      { ssh "$VM_HOST" "$@";                                                 }
+cmd__ssh()      { ssh "$VM_USER_HOST" "$@";                                                 }
 cmd__upload()   { scp "$1" "$VM_USER_HOST:${2:-/home/si2}";                            }
 cmd__download() { scp "$VM_USER_HOST:$1" "${2:-.}";                                    }
-cmd__asadmin()  { ssh $VM_USER_HOST "$VM_J2EE/bin/asadmin ${1:-start-domain domain1}"; }
-cmd__log()      { ssh $VM_USER_HOST "$VM_J2EE/domains/domain1/logs/server.log" | less; }
+cmd__asadmin()  { ssh $VM_USER_HOST "$VM_J2EE/bin/asadmin $*"; }
+cmd__log()      { ssh $VM_USER_HOST "cat $VM_J2EE/domains/domain1/logs/server.log" | less; }
 
 cmd__info() {
 	if_ip() { ifconfig "$1" | grep 'inet addr' | cut -d: -f2 | awk '{print $1}'; }
@@ -100,7 +124,7 @@ cmd__help() {
 	EOF
 }
 
-exe="$0"
+exe="$(basename "$0")"
 cmd="cmd__${1:-help}"
 
 ## Comprobamos que exista el subcomando como funcion
