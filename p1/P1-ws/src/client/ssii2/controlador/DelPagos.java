@@ -17,7 +17,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ssii2.visa.PagoBean;
-import ssii2.visa.dao.VisaDAO;
+
+import ssii2.visa.VisaDAOWSService;
+import ssii2.visa.VisaDAOWS;
+import javax.xml.ws.WebServiceRef;
 
 /**
  *
@@ -48,7 +51,8 @@ public class DelPagos extends ServletRaiz {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {        
         
-		VisaDAO dao = new VisaDAO();
+		VisaDAOWSService service = new VisaDAOWSService();
+		VisaDAOWS dao = service.getVisaDAOWSPort();
 		
 		/* Se recoge de la petici&oacute;n el par&aacute;metro idComercio*/  
 		String idComercio = request.getParameter(PARAM_ID_COMERCIO);
