@@ -81,7 +81,7 @@ public class VisaDAOWS extends DBTester {
     /**
      * Constructor de la clase     
      */
-    public VisaDAO() {
+    public VisaDAOWS() {
         return;
     }
 
@@ -449,7 +449,7 @@ public class VisaDAOWS extends DBTester {
     /**
      * @return the pooled
      */
-    @WebMethod(actionName="isDirectConnection")
+    @WebMethod(operationName="isDirectConnection")
     public boolean isDirectConnection() {
         return super.isDirectConnection();
     }
@@ -458,7 +458,7 @@ public class VisaDAOWS extends DBTester {
      * @param directConnection valor de conexión directa o indirecta
      */
     @Override
-    @WebMethod(actionName="setDirectConnection")
+    @WebMethod(operationName="setDirectConnection")
     public void setDirectConnection(@WebParam(name="directConnection") boolean directConnection) {
         super.setDirectConnection(directConnection);
     }
