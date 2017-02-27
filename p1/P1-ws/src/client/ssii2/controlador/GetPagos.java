@@ -21,6 +21,7 @@ import ssii2.visa.PagoBean;
 import ssii2.visa.VisaDAOWSService;
 import ssii2.visa.VisaDAOWS;
 import javax.xml.ws.WebServiceRef;
+import javax.xml.ws.BindingProvider;
 
 /**
  *
@@ -53,6 +54,11 @@ public class GetPagos extends ServletRaiz {
         
 		VisaDAOWSService service = new VisaDAOWSService();
 		VisaDAOWS dao = service.getVisaDAOWSPort();
+
+		BindingProvider bp = (BindingProvider) dao;
+		bp.getRequestContext().put(
+			BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+			getServletContext().getInitParameter("as.host.server"));
 
 		/* Se recoge de la petici&oacute;n el par&aacute;metro idComercio*/  
 		String idComercio = request.getParameter(PARAM_ID_COMERCIO);

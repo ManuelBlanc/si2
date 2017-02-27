@@ -48,6 +48,7 @@ import ssii2.visa.*;
 import ssii2.visa.VisaDAOWSService;
 import ssii2.visa.VisaDAOWS;
 import javax.xml.ws.WebServiceRef;
+import javax.xml.ws.BindingProvider;
 
 /**
  *
@@ -153,6 +154,11 @@ private void printAddresses(HttpServletRequest request, HttpServletResponse resp
 
 		VisaDAOWSService service = new VisaDAOWSService();
 		VisaDAOWS dao = service.getVisaDAOWSPort();
+		BindingProvider bp = (BindingProvider) dao;
+		bp.getRequestContext().put(
+			BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+			getServletContext().getInitParameter("as.host.server"));
+
 		HttpSession sesion = request.getSession(false);
 		if (sesion != null) {
 			pago = (PagoBean) sesion.getAttribute(ComienzaPago.ATTR_PAGO);
