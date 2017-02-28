@@ -52,9 +52,10 @@ public class DelPagos extends ServletRaiz {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {        
         
+        VisaDAOWS dao = null;
 		try {
 			VisaDAOWSService service = new VisaDAOWSService();
-			VisaDAOWS dao = service.getVisaDAOWSPort();
+			dao = service.getVisaDAOWSPort();
 			BindingProvider bp = (BindingProvider) dao;
 			bp.getRequestContext().put(
 				BindingProvider.ENDPOINT_ADDRESS_PROPERTY,

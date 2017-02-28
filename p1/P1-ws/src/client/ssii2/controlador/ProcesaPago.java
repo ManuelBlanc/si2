@@ -152,18 +152,19 @@ private void printAddresses(HttpServletRequest request, HttpServletResponse resp
             return;
         }
 
-		try {
-			VisaDAOWSService service = new VisaDAOWSService();
-			VisaDAOWS dao = service.getVisaDAOWSPort();
-			BindingProvider bp = (BindingProvider) dao;
-			bp.getRequestContext().put(
-				BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-				getServletContext().getInitParameter("url-servidor"));
-		}
-		catch (Exception e) {
-			enviaError(e, request, response);
-			return;
-		}
+        VisaDAOWS dao = null;
+        try {
+            VisaDAOWSService service = new VisaDAOWSService();
+            dao = service.getVisaDAOWSPort();
+            BindingProvider bp = (BindingProvider) dao;
+            bp.getRequestContext().put(
+                BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                getServletContext().getInitParameter("url-servidor"));
+        }
+        catch (Exception e) {
+            enviaError(e, request, response);
+            return;
+        }
 
 		HttpSession sesion = request.getSession(false);
 		if (sesion != null) {
