@@ -19,6 +19,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.util.ArrayList;
+
 import javax.ejb.Stateless;
 
 /**
@@ -246,7 +248,7 @@ public class VisaDAOBean extends DBTester implements VisaDAOLocal {
             if (!stmt.execute(insert)
                     && stmt.getUpdateCount() == 1) {
                 ret = true;
-			}
+            }
             }/****************/
 
             // Obtener id.autorizacion

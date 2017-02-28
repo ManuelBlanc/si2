@@ -12,7 +12,7 @@
   <!-- Añadir al classpath la librería con los stubs generados en el despliegue del servicio -->
 	<path id="compile.client.classpath">
 		<pathelement location="${as.lib}/javaee.jar"/>
-		<pathelement location="${build}/${tmpvisaclientjar}"/>
+		<pathelement location="${build.server}"/>
 	</path>
 
   <!-- Atributos de base de datos -->
@@ -20,20 +20,19 @@
 
 	<target name="ayuda">
 		<echo>
-NOTA IMPORTANTE: Antes de compilar el cliente, se debe desplegar el servicio
-para generar los stubs que permiten el acceso al WS
+NOTA IMPORTANTE: Antes de compilar el cliente, se debe compilar el servidor
+para generar las clases de interfaz
 
 Compilacion:
-ant compilar-servicio
-ant empaquetar-servicio
+ant compilar-servidor
+ant empaquetar-servidor
 ant compilar-cliente
 ant empaquetar-cliente
+ant empaquetar-aplicacion
 
 Despliegue:
-ant desplegar-servicio
-ant desplegar-cliente
-ant replegar-servicio
-ant replegar-cliente
+ant desplegar
+ant replegar
 ant redesplegar
 
 Base de datos:
@@ -47,59 +46,45 @@ ant limpiar-todo
 
     <target name="todo">
         <antcall target="setup-db" />
-        <antcall target="servicio" />
+        <antcall target="servidor" />
         <antcall target="cliente" />
+        <antcall target="empaquetar-aplicacion" />
+        <antcall target="desplegar" />
     </target>
     
     <target name="casitodo">
-        <antcall target="servicio" />
+        <antcall target="servidor" />
         <antcall target="cliente" />
+        <antcall target="empaquetar-aplicacion" />
+        <antcall target="desplegar" />
     </target>    
 
     <target name="cliente">
-        <antcall target="generar-stubs" />
         <antcall target="compilar-cliente" />
         <antcall target="empaquetar-cliente" />
-        <antcall target="desplegar-cliente" />
     </target>
     
-	<target name="servicio">
-        <antcall target="compilar-servicio" />
-        <antcall target="empaquetar-servicio" />       
-        <antcall target="desplegar-servicio" />
+	<target name="servidor">
+        <antcall target="compilar-servidor" />
+        <antcall target="empaquetar-servidor" />
     </target>            
     
-            
-	<target name="montar-jerarquia" description="crea los directorios del proyecto">
+
+	<target name="montar-jerarquia" description="Crea los directorios del proyecto">
 		<mkdir dir="${build}" />
 		<mkdir dir="${build.client}" />
 		<mkdir dir="${build.client}/WEB-INF/classes" />
 		<mkdir dir="${build.client}/WEB-INF/lib" />		
 		<mkdir dir="${build.server}" />	
-      <mkdir dir="${build.server}/WEB-INF" />
-      <mkdir dir="${build.server}/WEB-INF/classes" />
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist.client}" />
 		<mkdir dir="${dist.server}" />
-	</target>
-        
-  <target name="generar-stubs" depends="montar-jerarquia" description="Genera los stubs del cliente a partir del archivo WSDL">
-    <exec executable="${wsimport}">
-        <arg line=" -d ${build.client}/WEB-INF/classes" />
-        <arg line=" -p ${paquete}.visa" />
-        <arg line=" ${wsdl.url}" />
-    </exec>
-    <delete file="${build}/${tmpvisaclientjar}" />
-    <jar jarfile="${build}/${tmpvisaclientjar}" >
-  	<fileset dir="${build.client}/WEB-INF/classes" />
-    </jar>
-    <move file="${build}/${tmpvisaclientjar}" todir="${build.client}/WEB-INF/lib" />
 	</target>
   
 	<target name="compilar-cliente" depends="montar-jerarquia" description="Compila el cliente">
 		<javac srcdir="${src.client}" 
 		       destdir="${build.client}/WEB-INF/classes" 
- 		       includeantruntime="false"
+		       includeantruntime="false"
 		       includes="${paquete}/**" >
 			<classpath refid="compile.client.classpath"/>
 		</javac>
@@ -116,62 +101,52 @@ ant limpiar-todo
 		<jar jarfile="${dist.client}/${war}" >
 			<fileset dir="${build.client}" />
 		</jar>
-
 	</target>
 	
-	<target name="desplegar-cliente" description="Despliega el cliente de la aplicacion" >
-               <exec executable="${asadmin}">
-                   <arg line=" --user ${as.user}" />
-                   <arg line=" --passwordfile ${as.passwordfile}" />
-                   <arg line=" --host ${as.host.client}" />
-                   <arg line=" --port ${as.port}" />
-                   <arg line=" deploy"/>
-                   <arg line=" --name ${nombre} "/>
-                   <arg line=" --target ${as.target} "/>
-                   <arg line=" ${dist.client}/${war}   "/>
-               </exec>
-  	</target>
-
-	<target name="compilar-servicio" depends="montar-jerarquia" description="Compila el servicio">
+	<target name="compilar-servidor" depends="montar-jerarquia" description="Compila el servidor">
 		<javac srcdir="${src.server}" 
-		       destdir="${build.server}/WEB-INF/classes"
- 		       includeantruntime="false"
+		       destdir="${build.server}" 
+		       includeantruntime="false"
 		       includes="${paquete}/**" >
 			<classpath refid="compile.server.classpath"/>
 		</javac>
 	</target>
 
-
-
-	<target name="preparar-meta-inf-servicio" description="Copia los archivos necesarios al META-INF para crear el .jar del WS">
+	<target name="preparar-meta-inf-servidor" description="Copia los archivos necesarios al META-INF para crear el .jar del EJB">
 		<copy todir="${build.server}">
-    		  <fileset dir="${conf.serverws}"/>
+    		  <fileset dir="${conf.server}"/>
 		</copy>
 	</target>
 
-	<target name="empaquetar-servicio" description="Genera un .jar del EJB" depends="preparar-meta-inf-servicio">
-		<delete file="${dist.server}/${wswar}" />
-		<jar jarfile="${dist.server}/${wswar}" >
+	<target name="empaquetar-servidor" description="Genera un .jar del EJB" depends="preparar-meta-inf-servidor">
+		<delete file="${dist.server}/${jar}" />
+		<jar jarfile="${dist.server}/${jar}" >
 			<fileset dir="${build.server}" />
 		</jar>
 	</target>	
 
-	<target name="desplegar-servicio" description="Despliega el servicio de la aplicacion" >
+	<target name="empaquetar-aplicacion" description="Genera un .ear de toda la aplicación">
+		<delete file="${dist}/${ear}" />
+		<ear destfile="${dist}/${ear}" appxml="${conf.application}/META-INF/application.xml">
+			 <fileset dir="${dist.client}" includes="*.war" />
+ 			 <fileset dir="${dist.server}" includes="*.jar" />
+		</ear>
+	</target>
+
+	<target name="desplegar" description="Despliega la aplicacion" >
                <exec executable="${asadmin}">
                    <arg line=" --user ${as.user}" />
                    <arg line=" --passwordfile ${as.passwordfile}" />
                    <arg line=" --host ${as.host.server}" />
                    <arg line=" --port ${as.port}" />
                    <arg line=" deploy"/>
-                   <arg line=" --name ${nombre}-ws "/>
+                   <arg line=" --name ${nombre} "/>
                    <arg line=" --target ${as.target} "/>
-                   <arg line=" ${dist.server}/${wswar}   "/>
+                   <arg line=" ${dist}/${ear}   "/>
                </exec>
   	</target>
 
-       <!--	de desplegar servicio	retrievestubs="${build.client}/WEB-INF/lib" -->
-
-	<target name="replegar-cliente" description="Repliega la aplicacion" >
+	<target name="replegar" description="Repliega la aplicacion" >
                <exec executable="${asadmin}">
                    <arg line=" --user ${as.user}" />
                    <arg line=" --passwordfile ${as.passwordfile}" />
@@ -181,24 +156,11 @@ ant limpiar-todo
                    <arg line=" --target ${as.target} "/>
                    <arg line=" ${nombre} "/>
                </exec>
-	</target>
-	
-	<target name="replegar-servicio" description="Repliega la aplicacion" >
-               <exec executable="${asadmin}">
-                   <arg line=" --user ${as.user}" />
-                   <arg line=" --passwordfile ${as.passwordfile}" />
-                   <arg line=" --host ${as.host.server}" />
-                   <arg line=" --port ${as.port}" />
-                   <arg line=" undeploy"/>
-                   <arg line=" ${nombre}-ws "/>
-               </exec>
-	</target>
+	</target> 
 	
 	<target name="redesplegar" description="Repliega y vuelve a desplegar" >
-		<antcall target="replegar-servicio" />
-		<antcall target="desplegar-servicio" />
-		<antcall target="replegar-cliente" />
-		<antcall target="desplegar-cliente" />
+		<antcall target="replegar" />
+		<antcall target="desplegar" />
 	</target>
 
 	<target name="regenerar-bd" description="Regenera BD" depends="setup-db" >
