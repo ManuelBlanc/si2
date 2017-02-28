@@ -390,7 +390,7 @@ public class VisaDAOWS extends DBTester {
             }
         }
 
-        return new ArrayList<>(Arrays.asList(ret));
+        return (ret != null) ? new ArrayList<>(Arrays.asList(ret)) : null;
     }
 
     // Borrar los pagos asociados a un comercio

@@ -54,13 +54,18 @@ public class GetPagos extends ServletRaiz {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {        
         
-		VisaDAOWSService service = new VisaDAOWSService();
-		VisaDAOWS dao = service.getVisaDAOWSPort();
-
-		BindingProvider bp = (BindingProvider) dao;
-		bp.getRequestContext().put(
-			BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-			getServletContext().getInitParameter("url-servidor"));
+		try {
+			VisaDAOWSService service = new VisaDAOWSService();
+			VisaDAOWS dao = service.getVisaDAOWSPort();
+			BindingProvider bp = (BindingProvider) dao;
+			bp.getRequestContext().put(
+				BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+				getServletContext().getInitParameter("url-servidor"));
+		}
+		catch (Exception e) {
+			enviaError(e, request, response);
+			return;
+		}
 
 		/* Se recoge de la petici&oacute;n el par&aacute;metro idComercio*/  
 		String idComercio = request.getParameter(PARAM_ID_COMERCIO);

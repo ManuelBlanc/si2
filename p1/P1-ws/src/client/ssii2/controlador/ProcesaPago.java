@@ -152,12 +152,18 @@ private void printAddresses(HttpServletRequest request, HttpServletResponse resp
             return;
         }
 
-		VisaDAOWSService service = new VisaDAOWSService();
-		VisaDAOWS dao = service.getVisaDAOWSPort();
-		BindingProvider bp = (BindingProvider) dao;
-		bp.getRequestContext().put(
-			BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-			getServletContext().getInitParameter("url-servidor"));
+		try {
+			VisaDAOWSService service = new VisaDAOWSService();
+			VisaDAOWS dao = service.getVisaDAOWSPort();
+			BindingProvider bp = (BindingProvider) dao;
+			bp.getRequestContext().put(
+				BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+				getServletContext().getInitParameter("url-servidor"));
+		}
+		catch (Exception e) {
+			enviaError(e, request, response);
+			return;
+		}
 
 		HttpSession sesion = request.getSession(false);
 		if (sesion != null) {
@@ -181,7 +187,7 @@ private void printAddresses(HttpServletRequest request, HttpServletResponse resp
             return;
         }
 
-	if ((pago = dao.realizaPago(pago)) != null) {
+	if ((pago = dao.realizaPago(pago)) == null) {
             enviaError(new Exception("Pago incorrecto"), request, response);
             return;
         }
