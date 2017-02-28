@@ -44,11 +44,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import ssii2.visa.*;
-
-import ssii2.visa.VisaDAOWSService;
-import ssii2.visa.VisaDAOWS;
-import javax.xml.ws.WebServiceRef;
-import javax.xml.ws.BindingProvider;
+import javax.ejb.EJB;
+import ssii2.visa.VisaDAOLocal;
 
 /**
  *
@@ -56,7 +53,9 @@ import javax.xml.ws.BindingProvider;
  */
 public class ProcesaPago extends ServletRaiz {
 
-   
+    @EJB (name="VisaDAOBean",beanInterface=VisaDAOLocal.class)
+    private VisaDAOLocal dao;
+
     /** 
      * Par&aacute;metro que indica el identificador de transacci&oacute;n
      */
@@ -149,20 +148,6 @@ private void printAddresses(HttpServletRequest request, HttpServletResponse resp
         if (! val.esValida(tarjeta)) {            
             request.setAttribute(val.getErrorName(), val.getErrorVisa());
             reenvia("/formdatosvisa.jsp", request, response);
-            return;
-        }
-
-        VisaDAOWS dao = null;
-        try {
-            VisaDAOWSService service = new VisaDAOWSService();
-            dao = service.getVisaDAOWSPort();
-            BindingProvider bp = (BindingProvider) dao;
-            bp.getRequestContext().put(
-                BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                getServletContext().getInitParameter("url-servidor"));
-        }
-        catch (Exception e) {
-            enviaError(e, request, response);
             return;
         }
 
