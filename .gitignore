@@ -15,3 +15,7 @@
 # Maquina virtual
 si2srv/
 
+# Editores de texto
+*~
+.*.swp
+
