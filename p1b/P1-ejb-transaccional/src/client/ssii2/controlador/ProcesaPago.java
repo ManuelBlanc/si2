@@ -173,7 +173,15 @@ private void printAddresses(HttpServletRequest request, HttpServletResponse resp
             return;
         }
 
-	if ((pago = dao.realizaPago(pago)) == null) {
+        try {
+            pago = dao.realizaPago(pago);
+        }
+        catch (Exception e) {
+            if (sesion != null) sesion.invalidate();
+            enviaError(e, request, response);
+            return;
+        }
+        if (pago == null) {
             enviaError(new Exception("Pago incorrecto"), request, response);
             return;
         }

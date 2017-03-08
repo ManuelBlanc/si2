@@ -13,6 +13,7 @@ public class TarjetaBean {
     private String fechaEmision;
     private String fechaCaducidad;
     private String codigoVerificacion; /* CVV2 */
+    private double saldo;
 
     /**
      * Devuelve el titular de la tarjeta
@@ -92,5 +93,21 @@ public class TarjetaBean {
      */
     public void setCodigoVerificacion(String codigoVerificacion) {
         this.codigoVerificacion = codigoVerificacion;
+    }
+
+    /**
+     * Devuelve el saldo
+     * @return el saldo
+     */
+    public double getSaldo() {
+        return saldo;
+    }
+
+    /**
+     * Establece el saldo
+     * @param saldo el saldo
+     */
+    public void setSaldo(double saldo) {
+        this.saldo = saldo;
     }
 }

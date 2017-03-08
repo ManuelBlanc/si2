@@ -21,6 +21,7 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 
+import javax.ejb.EJBException;
 import javax.ejb.Stateless;
 
 /**
@@ -75,6 +76,14 @@ public class VisaDAOBean extends DBTester implements VisaDAOLocal {
                     " where idTransaccion = ?" +
                     " and idComercio = ?";
     /**************************************************/
+
+    private static final String GET_SALDO_QRY =
+        "select saldo from tarjeta " +
+        "where numeroTarjeta=?";
+    private static final String SET_SALDO_QRY =
+        "update tarjeta " +
+        "set saldo=? " +
+        "where numeroTarjeta=?";
 
     /**
      *  getQryCompruebaTarjeta
@@ -220,6 +229,35 @@ public class VisaDAOBean extends DBTester implements VisaDAOLocal {
             // Obtener conexion
             con = getConnection();
 
+            // <EJ7>
+            ret = true;
+            errorLog(GET_SALDO_QRY);
+            pstmt = con.prepareStatement(GET_SALDO_QRY);
+            pstmt.setString(1, pago.getTarjeta().getNumero());
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                double saldo = rs.getDouble("saldo");
+                saldo -= pago.getImporte();
+                if (saldo >= 0) {
+                    errorLog(SET_SALDO_QRY);
+                    pstmt = con.prepareStatement(SET_SALDO_QRY);
+                    pstmt.setDouble(1, saldo);
+                    pstmt.setString(2, pago.getTarjeta().getNumero());
+                    ret = (!pstmt.execute()) && (pstmt.getUpdateCount() == 1);
+                    pago.getTarjeta().setSaldo(saldo);
+                }
+                else {
+                    pago.setIdAutorizacion(null);
+                    pago = null;
+                    ret = false;
+                }
+            } else {
+                ret = false;
+            }
+
+            if (!ret) throw new EJBException(); // KLUDGE
+            // </EJ7>
+
             // Insertar en la base de datos el pago
 
             /* TODO Usar prepared statement si
@@ -302,7 +340,8 @@ public class VisaDAOBean extends DBTester implements VisaDAOLocal {
             }
         }
 
-        return ret ? pago : null;
+        if (!ret) throw new EJBException("Error al realizar el pago");
+        return pago;
     }
 
 
