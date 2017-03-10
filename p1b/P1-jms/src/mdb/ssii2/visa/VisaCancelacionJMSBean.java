@@ -29,12 +29,31 @@ public class VisaCancelacionJMSBean extends DBTester implements MessageListener 
   @Resource
   private MessageDrivenContext mdc;
 
-  private static final String UPDATE_CANCELA_QRY = null;
-   // TODO : Definir UPDATE sobre la tabla pagos para poner
-   // codRespuesta a 999 dado un código de autorización
+  // Definir UPDATE sobre la tabla pagos para poner
+  // codRespuesta a 999 dado un código de autorización
+  private static final String UPDATE_CANCELA_QRY =
+      "update pago" + 
+      " set codrespuesta=999" +
+      " where idautorizacion=?";
 
+  private static final String RECTIFICAR_SALDO_QRY =
+    "update tarjeta" +
+    " inner join pago on tarjeta.numerotarjeta = pago.numerotarjeta" +
+    " set saldo = saldo + pago.importe" +
+    " where pago.idautorizacion=?";
 
   public VisaCancelacionJMSBean() {
+  }
+
+  private boolean ejecutarConsultaActualizacion(String consulta) {
+    PreparedStatement pstmt = con.prepareStatement(UPDATE_CANCELA_QRY);
+    pstmt.setInt(1, msg.getText());
+    boolean exito = !pstmt.execute() && pstmt.getUpdateCount() == 1;
+    if (!exito) {
+      logger.error("Ha ocurrido un error al ejecutar la consulta");
+    }
+    ptsmt.close();
+    return exito;
   }
 
   // TODO : Método onMessage de ejemplo
@@ -49,6 +68,12 @@ public class VisaCancelacionJMSBean extends DBTester implements MessageListener 
           if (inMessage instanceof TextMessage) {
               msg = (TextMessage) inMessage;
               logger.info("MESSAGE BEAN: Message received: " + msg.getText());
+
+              // [EJ11]
+              ejecutarConsultaActualizacion(UPDATE_CANCELA_QRY);
+              ejecutarConsultaActualizacion(RECTIFICAR_SALDO_QRY);
+              // [/EJ11]
+              
           } else {
               logger.warning(
                       "Message of wrong type: "
