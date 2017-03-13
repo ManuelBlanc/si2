@@ -5,7 +5,7 @@
     <ejb>
       <ejb-name>VisaCancelacionJMSBean</ejb-name>
       <mdb-connection-factory>
-      	<jndi-name>VisaConnectionFactory</jndi-name>
+      	<jndi-name>jms/VisaConnectionFactory</jndi-name>
       </mdb-connection-factory>
     </ejb>
   </enterprise-beans>
