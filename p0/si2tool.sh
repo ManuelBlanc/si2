@@ -154,12 +154,12 @@ cmd__init() {
 #= Arregla la MAC de una maquina virtual.
 #= Se genera a partir del grupo, pareja y numero de ordenador.
 cmd_fixmac() {
-	perl -lane '
+	perl -i.orig -lane '
 	if s/^ethernet0\.address/ {
 		printf "%s = \"00:50:56:%s:%02x:%02x\"\n", $1, a1, pareja, PC;
 	}
 	elsif s/^ethernet1\.address/ {
-		printf ("%s = \"00:50:56:%02x:%s:%02x\"\n",$1,pareja,a1,PC);
+		printf ("%s = \"00:50:56:%02x:%s:%02x\"\n", $1, pareja, a1, PC);
 	}
 	else {
 		print;
@@ -217,7 +217,7 @@ cmd__psql() {
 #= ssh [@cmd]
 #= Abre una conexion ssh con la maquina virtual.
 #= Si se especifica un comando, se ejecuta en vez de abrir una sesion interactiva.
-cmd__ssh() { ssh "$VM_USER_HOST" "$@"; }
+cmd__ssh() { ssh "$VM_USER_HOST" "$*"; }
 
 #= upload @path-host [@path-vm]
 #= Sube un fichero a la maquina virtual
@@ -231,11 +231,19 @@ cmd__download() { scp "$VM_USER_HOST:$1" "${2:-.}"; }
 
 #= asadmin @cmd
 #= Ejecuta un comando con asadmin.
-cmd__asadmin() { ssh $VM_USER_HOST "$VM_J2EE/bin/asadmin $*"; }
+cmd__asadmin() { cmd__ssh "$VM_J2EE/bin/asadmin $*"; }
 
 #= log
 #= Muestra el log de Glassfish.
 cmd__log() { ssh $VM_USER_HOST "cat $VM_J2EE/domains/domain1/logs/server.log" | less +G; }
+
+#= jakarta
+#= Se descarga Jakarta JMeter de la maquina virtual
+cmd__jakarta() {
+	scp "$VM_USER_HOST:/opt/SI2/jakarta-jmeter.tgz" ~/Desktop
+	cd ~/Desktop
+	tar xzvf jakarta-jmeter.tgz
+}
 
 #= info
 #= Muestra el valor de varias variables de configuracion.
