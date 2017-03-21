@@ -13,8 +13,8 @@
 if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
 	export J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish'
 	echo "export J2EE_HOME=$J2EE_HOME"
-	alias si2tool="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/si2tool.sh"
-	alias si2tool
+	export PATH="$PATH:$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+	export GFPASSFILE=./passwordfile
 	return 0
 fi
 
@@ -154,6 +154,8 @@ cmd__init() {
 #= Arregla la MAC de una maquina virtual.
 #= Se genera a partir del grupo, pareja y numero de ordenador.
 cmd_fixmac() {
+	local VMX="${1:-si2srv.vmx}"
+	[[ -f "$VMX" ]] || abort "No se ha encontrado el fichero si2srv.vmx"
 	perl -i.orig -lane '
 	if s/^ethernet0\.address/ {
 		printf "%s = \"00:50:56:%s:%02x:%02x\"\n", $1, a1, pareja, PC;
@@ -164,7 +166,7 @@ cmd_fixmac() {
 	else {
 		print;
 	}
-	' si2srv.vmx
+	' "$VMX"
 }
 
 #= setup
