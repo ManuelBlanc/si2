@@ -19,3 +19,5 @@ si2srv/
 *~
 .*.swp
 
+# Logs
+jmeter.log

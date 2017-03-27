@@ -11,10 +11,21 @@
 # ESPECIAL: Si se ejecuta con source nos instalamos como comando
 # en el entorno actual.
 if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+	read -e -p'Grupo: ' SI2_GROUP
+	read -e -p'Pareja: ' SI2_PAIR
+
+	export SI2_GROUP
+	export SI2_PAIR
+	export SI2_VM
+
 	export J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish'
-	echo "export J2EE_HOME=$J2EE_HOME"
-	export PATH="$PATH:$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+	#export PATH="$PATH:$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 	export GFPASSFILE=./passwordfile
+
+	alias si2tool="$(pwd)/${BASH_SOURCE[0]}"
+
+
+	echo 'Instalado. Prueba: si2tool'
 	return 0
 fi
 
@@ -53,8 +64,8 @@ group2num() {
 }
 
 # Constantes de configuracion
-: ${SI2_GROUP:=2401}
-: ${SI2_PAIR:=11}
+: ${SI2_GROUP:?El numero de grupo debe estar definido}
+: ${SI2_PAIR:?El numero de pareja debe estar definido}
 : ${SI2_VM:=1}
 
 # Permitimos leer opciones que especifiquen grupo, etc.
@@ -108,26 +119,24 @@ cmd__help() {
 			shift @F;
 			$cmd = bold shift @F;
 			chomp($des = ($_ = <>) =~ s/^#=\s+//r);
-			print bold "NAME";
-			print "   $cmd -- $des\n";
-			print bold "SYNOPSIS";
-			print "   $cmd ", join " ", (map { formatize $_ } @F), "\n";
-			print bold "DESCRIPTION";
+			print join " ", ("uso:", (bold "$cmd"), map { formatize $_ } @F);
+			print "   $des";
 			while (($_ = <>) =~ s/^#=\s+//) {
 				chomp; next if /^$/; print "   ", formatize $_;
 			}
 			$found = 1;
 			exit 0;
 			END { print "Ayuda no encontrada." unless $found; }
-		' "${BASH_SOURCE[0]}" | less
+		' "${BASH_SOURCE[0]}"
 	fi
 }
 
 #= init
 #= Configura la maquina local.
+#= Se hacen las siguientes acciones:
 #= + Ejecuta el script /opt/si2/virtualip.sh.
 #= + Añade preferencias utiles a ~/.vmware/preferences
-#= + Prepara un certificado para uso con ssh
+#= + Prepara una identidad para uso con ssh
 cmd__init() {
 	INFO "Configurando la interfaz eth0:0 para el host"
 	INFO "Se requiere la constraseña del usuario $(whoami)."
@@ -239,12 +248,21 @@ cmd__asadmin() { cmd__ssh "$VM_J2EE/bin/asadmin $*"; }
 #= Muestra el log de Glassfish.
 cmd__log() { ssh $VM_USER_HOST "cat $VM_J2EE/domains/domain1/logs/server.log" | less +G; }
 
-#= jakarta
-#= Se descarga Jakarta JMeter de la maquina virtual
-cmd__jakarta() {
-	scp "$VM_USER_HOST:/opt/SI2/jakarta-jmeter.tgz" ~/Desktop
-	cd ~/Desktop
-	tar xzvf jakarta-jmeter.tgz
+#= jmeter
+#= Se descarga Jakarta JMeter de la maquina virtual y lo instala
+#= Se instala localmente en ~/.si2jmeter
+cmd__jmeter() {
+	JMETER_PATH="$HOME/.si2jmeter"
+
+	if [[ ! -d "$JMETER_PATH/jakarta-jmeter" ]]; then
+		INFO "Instalando el Jakarta JMeter en $HOME/.si2jmeter"
+
+		mkdir --mode='0700' -p "$JMETER_PATH"
+		scp "$VM_USER_HOST:/opt/SI2/jakarta-jmeter.tgz" "$JMETER_PATH"
+		(cd "$JMETER_PATH" && tar xzvf jakarta-jmeter.tgz)
+	fi
+
+	"$JMETER_PATH/jakarta-jmeter/bin/jmeter" "$@"
 }
 
 #= info
@@ -265,6 +283,22 @@ cmd__info() {
 	print_var 'VM_USER_HOST' "$VM_USER_HOST"
 	print_var 'VM_J2EE'      "$VM_J2EE"
 	print_var 'J2EE_HOME'    "$J2EE_HOME"
+}
+
+#= replegar
+#= Repliega todos los proyectos en subdirectorios del actual.
+cmd__replegar() {
+	for dir in P1-*; do
+		(
+			cd "$dir"
+			ant replegar; ant delete-pool-local
+			if [[ "$dir" = "P1-base" ]]; then
+				ant delete-db
+			else
+				ant limpiar-todo
+			fi
+		)
+	done
 }
 
 # ----------------------------------------------------------------------------
