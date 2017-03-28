@@ -150,7 +150,7 @@ ant limpiar-todo
                <exec executable="${asadmin}">
                    <arg line=" --user ${as.user}" />
                    <arg line=" --passwordfile ${as.passwordfile}" />
-                   <arg line=" --host ${as.host.client}" />
+                   <arg line=" --host ${as.host.server}" />
                    <arg line=" --port ${as.port}" />
                    <arg line=" undeploy"/>
                    <arg line=" --target ${as.target} "/>

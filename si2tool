@@ -11,12 +11,9 @@
 # ESPECIAL: Si se ejecuta con source nos instalamos como comando
 # en el entorno actual.
 if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
-	read -e -p'Grupo: ' SI2_GROUP
-	read -e -p'Pareja: ' SI2_PAIR
-
-	export SI2_GROUP
-	export SI2_PAIR
-	export SI2_VM
+	export SI2_GROUP=2401
+	export SI2_PAIR=11
+	export SI2_VM=1
 
 	export J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish'
 	#export PATH="$PATH:$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
