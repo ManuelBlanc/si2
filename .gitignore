@@ -7,6 +7,7 @@
 # Memoria
 *.doc
 *.odx
+out/
 
 # Archivos comprimidos
 *.tgz

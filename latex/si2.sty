@@ -1,0 +1,54 @@
+
+% Matemáticas
+\RequirePackage{amsthm, amsmath, amsfonts, amssymb, mathtools}
+
+% Código y pseudocódigo
+\RequirePackage{listings}
+\lstloadlanguages{Haskell}
+\lstdefinestyle{code}{
+	language=Java,
+	firstnumber=\numexpr\inputlineno+1\relax,
+	belowskip=-1.33em,
+	tabsize=4,
+	showstringspaces=false, % Para que no muestre los _ en las cadenas
+	basicstyle=\small\ttfamily,
+	flexiblecolumns=false,
+	basewidth={0.5em,0.45em},
+	literate=%
+		{+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+		{>}{{$>$}}1 {<}{{$<$}}1
+		{á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+		{Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+		{ü}{{\"u}}1 {Ü}{{\"U}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {€}{{\EUR}}1
+}
+
+% Programacion literaria
+\lstnewenvironment{code}{\lstset{style=code}}{} % \csname lst@SetFirstLabel\endcsname
+\lstnewenvironment{code*}{\lstset{style=code}}{}
+
+% Imagenes
+\graphicspath{{../latex/img/}}
+
+\CabeceraAlias{bloque}{section}
+\CabeceraAlias{ejercicio}{subsection}[%
+	etiqueta  	= {},
+	forma     	= {runin},
+	formato   	= {\normalfont\bfseries},
+	separacion	= 0em,
+	despues   	= {:},
+	contador  	= {\arabic}]
+\CabeceraAlias{apartado}{subsubsection}[etiqueta={\thesubsubsection.},contador={\alph}]
+\CabeceraAlias{paragrafo}{paragraph}
+
+% Definición del título
+\ConfigurarDocumento{
+	universidad = UAM,
+	grado       = 3º del Grado en Ingeniería Informática,
+	asignatura  = Sistemas Informáticos 2,
+	curso       = 2016-17,
+	%practica    = {1}{SIN ESPECIFICAR},
+	autores     = {% No se puede separar en varias lineas
+		\href{manuel.blanc@estudiante.uam.es,mario.pascualn@estudiante.uam.es}%
+		{M. Blanc, M. Pascual}%
+	},
+}

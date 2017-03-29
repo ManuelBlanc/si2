@@ -1,0 +1,2 @@
+
+require '../latex/latexmkrc.pl'
