@@ -1,0 +1,3 @@
+sampler_label,aggregate_report_count,average,aggregate_report_median,aggregate_report_90%_line,aggregate_report_min,aggregate_report_max,aggregate_report_error%,aggregate_report_rate,aggregate_report_bandwidth
+P1-ejb,1000,6,4,6,3,1573,0.0,155.13496742165682,118.02634991661496
+Total,1000,6,4,6,3,1573,0.0,155.13496742165682,118.02634991661496
