@@ -82,50 +82,6 @@ VM_GROUP_ID=$(group2num $SI2_GROUP)
 
 # ----------------------------------------------------------------------------
 
-#= help [@cmd]
-#= Muestra la ayuda de un comando, o de todos.
-#= La informacion se extrae del propio fichero usando codigo Perl ilegible.
-cmd__help() {
-	if ! type perl > /dev/null; then
-		abort 'La ayuda usa perl. Abre el fichero directamente para ver los comentarios.'
-	fi
-	if [[ ${#@} -eq 0 ]]; then
-		echo "uso: $BOLD$exe$NORMAL <comando> [<argumentos>]"
-		echo ""
-		echo "Los subcomandos validos son:"
-		perl -lane '
-			sub bold { `tput bold`.$_[0].`tput sgr0` }
-			next unless (/^#=/);
-			#next unless $. > 70;
-			printf "   %-20s %s", (bold $F[1]), (<> =~ s/^#=\s+//r);
-			while (<> =~ /^#=/) {};
-		' "${BASH_SOURCE[0]}"
-	else
-		perl -wlane '
-			$\="\n";
-			sub under { `tput smul`.$_[0].`tput rmul` }
-			sub bold  { `tput bold`.$_[0].`tput sgr0` }
-			sub formatize {
-				$_[0] =~ s/@([\w.-]+)/under $1/ge;
-				$_[0] =~ s/((?:^|\s|(?<=\[))-[\w.-]+)/bold $1/ge;
-				return $_[0];
-			}
-			next unless (/^#= \Q'$1'/);
-			shift @F;
-			$cmd = bold shift @F;
-			chomp($des = ($_ = <>) =~ s/^#=\s+//r);
-			print join " ", ("uso:", (bold "$cmd"), map { formatize $_ } @F);
-			print "   $des";
-			while (($_ = <>) =~ s/^#=\s+//) {
-				chomp; next if /^$/; print "   ", formatize $_;
-			}
-			$found = 1;
-			exit 0;
-			END { print "Ayuda no encontrada." unless $found; }
-		' "${BASH_SOURCE[0]}"
-	fi
-}
-
 #= init
 #= Configura la maquina local.
 #= Se hacen las siguientes acciones:
@@ -224,9 +180,9 @@ cmd__psql() {
 	fi
 }
 
-#= clean-db
+#= truncate
 #= Limpia la base de datos
-cmd__truncatepago() {
+cmd__truncate() {
 	cmd__psql 'truncate table pago'
 }
 
@@ -248,7 +204,8 @@ cmd__download() { scp "$VM_USER_HOST:$1" "${2:-.}"; }
 #= asadmin @cmd
 #= Ejecuta un comando con asadmin.
 cmd__asadmin() {
-	cmd__ssh "$VM_J2EE/bin/asadmin --host $VM_HOST --user admin --passwordfile ./passwordfile $*"
+	[[ -f './passwordfile' ]] || abort 'No se encontro un ./passwordfile en el directorio actual'
+	"$J2EE_HOME/bin/asadmin" --host "$VM_HOST" --user admin --passwordfile ./passwordfile "$@"
 }
 
 #= log
@@ -272,25 +229,6 @@ cmd__jmeter() {
 	"$JMETER_PATH/jakarta-jmeter/bin/jmeter" "$@"
 }
 
-#= info
-#= Muestra el valor de varias variables de configuracion.
-cmd__info() {
-	if_ip() { ifconfig "$1" | grep 'inet addr' | cut -d: -f2 | awk '{print $1}'; }
-	print_var() { printf "${BOLD}%-16s${NORMAL} = %s\n" "$1" "$2"; }
-	set +e
-	print_var 'user@host'    "$(whoami)@$(hostname)"
-	print_var 'eth0:0 inet'  "$(if_ip eth0:0 2>&1)"
-	print_var 'vmnet1 inet'  "$(if_ip vmnet1 2>&1)"
-	print_var 'vmnet8 inet'  "$(if_ip vmnet8 2>&1)"
-	print_var 'SI2_GROUP'    "$SI2_GROUP"
-	print_var 'SI2_PAIR'     "$SI2_PAIR"
-	print_var 'SI2_VM'       "$SI2_VM"
-	print_var 'VM_USER'      "$VM_USER"
-	print_var 'VM_HOST'      "$VM_HOST"
-	print_var 'VM_USER_HOST' "$VM_USER_HOST"
-	print_var 'VM_J2EE'      "$VM_J2EE"
-	print_var 'J2EE_HOME'    "$J2EE_HOME"
-}
 
 #= replegar
 #= Repliega todos los proyectos en subdirectorios del actual.
@@ -306,6 +244,70 @@ cmd__replegar() {
 			fi
 		)
 	done
+}
+
+#= info
+#= Muestra el valor de varias variables de configuracion.
+cmd__info() {
+	if_ip() { ifconfig "$1" | grep 'inet addr' | cut -d: -f2 | awk '{print $1}'; }
+	print_var() { printf "${BOLD}%-16s${NORMAL} = %s\n" "$1" "$2"; }
+	set +e
+	print_var 'user@host'    "$(whoami)@$(hostname)"
+	print_var 'eth0:0 inet'  "$(if_ip eth0:0 2>&1)"
+	print_var 'vmnet1 inet'  "$(if_ip vmnet1 2>&1)"
+	print_var 'vmnet8 inet'  "$(if_ip vmnet8 2>&1)"
+	print_var 'SI2_GROUP'    "$SI2_GROUP"
+	print_var 'SI2_PAIR'     "$SI2_PAIR"
+	print_var 'SI2_VM'       "$SI2_VM"
+	print_var 'VM_USER'      "$VM_USER"
+	print_var 'VM_HOST'      "$VM_HOST"
+	print_var 'VM_USER_HOST' "$VM_USER_HOST"f
+	print_var 'VM_J2EE'      "$VM_J2EE"
+	print_var 'J2EE_HOME'    "$J2EE_HOME"
+}
+
+#= help [@cmd]
+#= Muestra la ayuda de un comando, o de todos.
+#= La informacion se extrae del propio fichero usando codigo Perl ilegible.
+cmd__help() {
+	if ! type perl > /dev/null; then
+		abort 'La ayuda usa perl. Abre el fichero directamente para ver los comentarios.'
+	fi
+	if [[ ${#@} -eq 0 ]]; then
+		echo "uso: $BOLD$exe$NORMAL <comando> [<argumentos>]"
+		echo ""
+		echo "Los subcomandos validos son:"
+		perl -lane '
+			sub bold { `tput bold`.$_[0].`tput sgr0` }
+			next unless (/^#=/);
+			#next unless $. > 70;
+			printf "   %-20s %s", (bold $F[1]), (<> =~ s/^#=\s+//r);
+			while (<> =~ /^#=/) {};
+		' "${BASH_SOURCE[0]}"
+	else
+		perl -wlane '
+			$\="\n";
+			sub under { `tput smul`.$_[0].`tput rmul` }
+			sub bold  { `tput bold`.$_[0].`tput sgr0` }
+			sub formatize {
+				$_[0] =~ s/@([\w.-]+)/under $1/ge;
+				$_[0] =~ s/((?:^|\s|(?<=\[))-[\w.-]+)/bold $1/ge;
+				return $_[0];
+			}
+			next unless (/^#= \Q'$1'/);
+			shift @F;
+			$cmd = bold shift @F;
+			chomp($des = ($_ = <>) =~ s/^#=\s+//r);
+			print join " ", ("uso:", (bold "$cmd"), map { formatize $_ } @F);
+			print "   $des";
+			while (($_ = <>) =~ s/^#=\s+//) {
+				chomp; next if /^$/; print "   ", formatize $_;
+			}
+			$found = 1;
+			exit 0;
+			END { print "Ayuda no encontrada." unless $found; }
+		' "${BASH_SOURCE[0]}"
+	fi
 }
 
 # ----------------------------------------------------------------------------
