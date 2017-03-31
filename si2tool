@@ -16,8 +16,6 @@ if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
 	export SI2_VM=1
 
 	export J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish'
-	#export PATH="$PATH:$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-	export GFPASSFILE=./passwordfile
 
 	alias si2tool="$(pwd)/${BASH_SOURCE[0]}"
 
@@ -219,7 +217,17 @@ cmd__ant() { J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish' ant "$@"; }
 #= Abre una sesion psql con la base de datos del servidor.
 #= La base de datos por defecto (valor de @db) es 'visa'.
 cmd__psql() {
-	ssh -t $VM_USER_HOST 'psql -U alumnodb visa';
+	if [[ $# -gt 0 ]]; then
+		ssh -t $VM_USER_HOST 'psql -U alumnodb visa' <<< "$1"
+	else
+		ssh -t $VM_USER_HOST 'psql -U alumnodb visa'
+	fi
+}
+
+#= clean-db
+#= Limpia la base de datos
+cmd__truncatepago() {
+	cmd__psql 'truncate table pago'
 }
 
 #= ssh [@cmd]
@@ -239,7 +247,9 @@ cmd__download() { scp "$VM_USER_HOST:$1" "${2:-.}"; }
 
 #= asadmin @cmd
 #= Ejecuta un comando con asadmin.
-cmd__asadmin() { cmd__ssh "$VM_J2EE/bin/asadmin $*"; }
+cmd__asadmin() {
+	cmd__ssh "$VM_J2EE/bin/asadmin --host $VM_HOST --user admin --passwordfile ./passwordfile $*"
+}
 
 #= log
 #= Muestra el log de Glassfish.

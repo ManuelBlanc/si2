@@ -131,11 +131,10 @@
 
 \NewDocumentCommand{\CabeceraAlias}{mmo}{
 	% Comando de cabecera
-	\expandafter\edef\csname#1\endcsname{%
-		\@ifnextchar[{\@readSetCounter}{\}
+	\expandafter\edef\csname#1\endcsname[##1]##2{%
 		\noexpand\setcounter{#2}{##1-1}
 		\expandafter\noexpand\csname#2\endcsname{##2}
-		\noexpand\label{#1:\expandafter\noexpand\csname the#2\endcsname}
+		%\noexpand\label{#1:\expandafter\noexpand\csname the#2\endcsname}
 	}
 
 	% Texto de hipervinculos
@@ -260,28 +259,28 @@
 \newcommand{\numero}[2][5]{\num[round-mode=places,round-precision=#1]{#2}}
 
 % Portada
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
-\newcommand{\portada}[1]{
-	\pagenumbering{roman}
+\newcommand{\portada}[1]{%
 	\begin{titlepage}
 	\begin{center}
-
-		\HRule                                             	\\[1em]
+		\rule{\linewidth}{0.5mm}                           	\\[1em]
 		{ \LARGE\bfseries \@practica }                     	\\
-		\HRule                                             	\\[4em]
+		\rule{\linewidth}{0.5mm}                           	\\[4em]
 		{ \Large \textsc{\@asignatura\ --\ \@universidad} }	\\[3em]
 		{ \Large \@autores }                               	\\[0.5em]
 		{ \today }                                         	\\[0.5em]
 		#1
-
 	\end{center}
 	\end{titlepage}
 	%\thispagestyle{empty}
 }
 
 % Tabla de contenidos
-\newcommand{\indice}{
+\newcommand{\indice}{%
 	\newpage\tableofcontents
-	\newpage\pagenumbering{arabic}
-	\stepcounter{page}\stepcounter{page}
+	\pagenumbering{roman}
+	\setcounter{page}{2}
+	%
+	\newpage
+	\pagenumbering{arabic}
+	\setcounter{page}{10}
 }

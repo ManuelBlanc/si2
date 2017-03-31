@@ -1,25 +1,149 @@
 \documentclass[a4paper, 12pt, spanish]{memoria}
 
+\usepackage{booktabs}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.8}
+\pgfplotstableset{
+	every head row/.style={before row={\toprule},after row={\midrule}},
+	every last row/.style={after row=\bottomrule},
+	/pgf/number format/fixed numeric/.style={
+		/pgfplots/table/numeric type,
+		fixed,
+		precision=#1,
+		fixed zerofill
+	},
+	/pgfplots/table/create col/format percent/.style={
+		/pgfplots/table/multiply by=100,
+		postproc cell content/.append style={
+			/pgfplots/table/@cell content/.add={}{$\%$},
+		},
+	}
+}
+
+
 \usepackage{si2}
 \ConfigurarDocumento{
 	practica = {2}{Práctica 2: Rendimiento},
 }
 
+\newcommand{\MostrarAggregateCsvH}[1]{{%
+%% Leemos el fichero
+\pgfplotstableread[ignore chars={\%},col sep=comma,]{#1}\loadedtable
+%% Lo transponemos
+\pgfplotstabletranspose[%
+	string type,
+	columns={sampler_label,aggregate_report_count,average,aggregate_report_median,aggregate_report_90_line,aggregate_report_min,aggregate_report_max,aggregate_report_error,aggregate_report_rate,aggregate_report_bandwidth},
+	colnames from=sampler_label,
+	input colnames to=sampler_label,
+	]\transposedtable\loadedtable
+\pgfplotstabletypeset[%
+	string type,
+	row style/.style 2 args={
+		every row ##1 column 1/.style={##2},
+		every row ##1 column 2/.style={##2},
+		every row ##1 column 3/.style={##2},
+		every row ##1 column 4/.style={##2},
+	},
+	columns/sampler_label/.style={
+		column name={Etiqueta},
+		column type=l,
+		string replace={aggregate_report_count}{Muestras},
+		string replace={average}{Media},
+		string replace={aggregate_report_median}{Mediana},
+		string replace={aggregate_report_90_line}{Percentil $90\%$},
+		string replace={aggregate_report_min}{Mínimo},
+		string replace={aggregate_report_max}{Máximo},
+		string replace={aggregate_report_error}{Porcentaje de error},
+		string replace={aggregate_report_rate}{Tasa},
+		string replace={aggregate_report_bandwidth}{Ancho de banda},
+	},
+	row style={6}{fixed numeric=1, format percent},
+	row style={7}{fixed numeric=2},
+	row style={8}{fixed numeric=2},
+	]\transposedtable
+}}
+
+\newcommand{\MostrarAggregateCsv}[2][]{{
+\pgfplotstabletypeset[%
+	font={\footnotesize},
+	ignore chars={\%},col sep=comma,
+	columns/sampler_label/.style             	= {column name={Nombre},string type,column type=l       	},
+	columns/aggregate_report_count/.style    	= {column name={Muestras}                               	},
+	columns/average/.style                   	= {column name={Media}                                  	},
+	columns/aggregate_report_median/.style   	= {column name={Mediana}                                	},
+	columns/aggregate_report_90_line/.style  	= {column name={P-$90\%$}                               	},
+	columns/aggregate_report_min/.style      	= {column name={Mín}                                    	},
+	columns/aggregate_report_max/.style      	= {column name={Máx}                                    	},
+	columns/aggregate_report_error/.style    	= {column name={Error \%},fixed numeric=1,format percent	},
+	columns/aggregate_report_rate/.style     	= {column name={Rate},fixed numeric=2                   	},
+	columns/aggregate_report_bandwidth/.style	= {column name={Bandwidth},fixed numeric=2              	},
+	#1
+	]{#2}
+}}
+
 \begin{document}
 
-\portada{}
-\indice{}
+\portada\indice
 
 \bloque[1]{Mediciones de rendimiento con JMeter}
-En este bloque hemos realizado mediciones usando JMeter.
 
-\ejercicio[1]{Ejercicio 1}
+\ejercicio[1]{Definición del plan de pruebas}
+Hemos definido el plan completo de pruebas y hemos adjuntado el fichero generado \fichero{P2.jmx} al entregable de la práctica.
 
-Siguiendo todos los pasos anteriores, defina el plan completo de pruebas para realizar las tres ejecuciones secuenciales sobre los tres proyectos definidos hasta ahora (P1-base, P1-ws, P1-ejb). Adjunte el fichero generado P2.jmx al entregable de la prática.
+Para evitar repetición, hemos comprobado que se podría mover la variable aleatorio y el set de datos CSV un nivel superior. 
 
-En este ejercicio
+\ejercicio[2]{Uso de \texttt{free} y \texttt{nmon}}
+Hemos preparado los PCs con el servidor en \codigo{10.1.11.1} y el cliente en \codigo{10.1.11.2}.
+
+%% (Salida del comando free)
+%\includegraphics{path/al.png}
+%% (Salida del comando nmon)
+%\includegraphics{path/al.png}
+
+\ejercicio[3]{Ejecutando las pruebas}
+% TODO: Insertar foto verificando que los pagos son correctos?
+% Anote los resultados del informe agregado en la memoria de la práctica.
+A continuación están los resultados del informe agregado:
+\begin{table}[h!]
+	\centering
+	\caption{Informe de P1-base, P1-ws y P1-ejb-remoto}
+	\MostrarAggregateCsv{aggregate.csv}
+\end{table}
+
+\pregunta[1]{¿Cuál de los resultados le parece el mejor? ¿Por qué?}
+La implementación de P1-base parece ser la más eficiente en términos de rendimiento.
+\pregunta[2]{¿Qué columna o columnas elegiría para decidir este resultado?}
+Son preferibles estadísticos robustos a los que les afecte menos el ruido (eg, la mediana en vez de la medía).
+Mediana, P90\%.
+
+\begin{table}[h!]
+	\centering
+	\caption{Informe de P1-ejb}
+	\MostrarAggregateCsv{aggregate2.csv}
+\end{table}
+
+% Compare los resultados obtenidos con los anteriores.
+El rendimiento
 
 \bloque[2]{Monitorización}
-Texto aqui.
+
+\ejercicio[4]{Adaptando la configuración del servidor}
+1. Max Queue Size del Servicio HTTP
+2. Maximum Pool Size del Pool de conexiones a nuestra DB
+
+\ejercicio[5]{Valores de configuración de glassfish}
+Esta en la hoja de calculo.
+
+\ejercicio[6]{Ejecutando las pruebas de nuevo}
+
+\pregunta[1]{A la vista de los resultados, ¿qué elemento de proceso le parece más costosa? ¿Red? ¿CPU? ¿Acceso a datos? En otras palabras, ¿cuál fue el elemento más utilizado durante la monitorización con nmon en un entorno virtual? (CPU, Memoria, disco,...)}
+
+\pregunta[2]{¿Le parece una situación realista la simulada en este ejercicio? ¿Por qué?}
+
+\pregunta[3]{Teniendo en cuenta cuál ha sido el elemento más saturado, proponga otro esquema de despliegue que resuelva esa situación.}
+
+\bloque[3]{Curva de productividad para P1-base}
+
 
 \end{document}
+
