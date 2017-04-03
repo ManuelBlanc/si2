@@ -18,7 +18,7 @@ if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
 	export J2EE_HOME='/usr/local/glassfish-4.1.1/glassfish'
 
 	alias si2tool="$(pwd)/${BASH_SOURCE[0]}"
-
+	alias jmeter="$HOME/.si2jmeter/jakarta-jmeter/bin/jmeter"
 
 	echo 'Instalado. Prueba: si2tool'
 	return 0
@@ -205,7 +205,8 @@ cmd__download() { scp "$VM_USER_HOST:$1" "${2:-.}"; }
 #= Ejecuta un comando con asadmin.
 cmd__asadmin() {
 	[[ -f './passwordfile' ]] || abort 'No se encontro un ./passwordfile en el directorio actual'
-	"$J2EE_HOME/bin/asadmin" --host "$VM_HOST" --user admin --passwordfile ./passwordfile "$@"
+	echo "$J2EE_HOME/bin/asadmin" --user admin --passwordfile ./passwordfile --host "$VM_HOST" --port 4848 "$@"
+	"$J2EE_HOME/bin/asadmin" --user admin --passwordfile ./passwordfile --host "$VM_HOST" --port 4848 "$@"
 }
 
 #= log
@@ -214,16 +215,28 @@ cmd__log() { ssh $VM_USER_HOST "cat $VM_J2EE/domains/domain1/logs/server.log" | 
 
 #= jmeter
 #= Se descarga Jakarta JMeter de la maquina virtual y lo instala
-#= Se instala localmente en ~/.si2jmeter
+#= Tambien instala una version "moderna" del JMeter junto con plugins
+#= Todo se instala localmente en ~/.si2jmeter
 cmd__jmeter() {
 	JMETER_PATH="$HOME/.si2jmeter"
 
 	if [[ ! -d "$JMETER_PATH/jakarta-jmeter" ]]; then
-		INFO "Instalando el Jakarta JMeter en $HOME/.si2jmeter"
+		INFO "Copiando el Jakarta JMeter de la VM a $HOME/.si2jmeter"
 
 		mkdir --mode='0700' -p "$JMETER_PATH"
-		scp "$VM_USER_HOST:/opt/SI2/jakarta-jmeter.tgz" "$JMETER_PATH"
-		(cd "$JMETER_PATH" && tar xzvf jakarta-jmeter.tgz)
+		[[ -f jmeter.tgz ]] || scp "$VM_USER_HOST:/opt/SI2/jakarta-jmeter.tgz" "$JMETER_PATH/jmeter.tgz"
+		(cd "$JMETER_PATH" && tar xzvf jmeter.tgz)
+	fi
+
+	if [[ ! -d "$JMETER_PATH/apache-jmeter-2.13" ]]; then
+		INFO "Instalando una version moderna con plugins para automatizar cosas"
+		(
+			cd "$JMETER_PATH"
+			[[ -f jmeter13.tgz ]] || curl 'https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-2.13.tgz' -o jmeter13.tgz
+			[[ -f plugins.zip  ]] || curl 'http://jmeterplugins.com/downloads/file/JMeterPlugins-Standard-1.3.1.zip' -o plugins.zip
+			tar xzvf jmeter13.tgz
+			unzip plugins.zip 'lib/*' -d apache-jmeter-2.13
+		)
 	fi
 
 	"$JMETER_PATH/jakarta-jmeter/bin/jmeter" "$@"

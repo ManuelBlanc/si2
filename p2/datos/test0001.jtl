@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="12" lt="12" ts="1491238473966" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="20" lt="20" ts="1491238476400" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1250"/>
+<httpSample t="7" lt="7" ts="1491238478563" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="18" lt="18" ts="1491238480722" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1250"/>
+<httpSample t="7" lt="7" ts="1491238483640" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="17" lt="17" ts="1491238485713" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1250"/>
+<httpSample t="7" lt="7" ts="1491238488013" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="17" lt="17" ts="1491238490113" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1250"/>
+<httpSample t="7" lt="7" ts="1491238492679" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="16" lt="16" ts="1491238495655" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1250"/>
+<httpSample t="7" lt="7" ts="1491238497901" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="15" lt="15" ts="1491238500624" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1250"/>
+<httpSample t="4" lt="4" ts="1491238503287" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="282" lt="282" ts="1491238505888" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="694"/>
+<httpSample t="8" lt="8" ts="1491238509086" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="28" lt="28" ts="1491238511535" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="694"/>
+<httpSample t="9" lt="9" ts="1491238514105" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1984"/>
+<httpSample t="15" lt="15" ts="1491238516988" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="694"/>
+<httpSample t="4" lt="4" ts="1491238519743" s="true" lb="/P1-base/comienzapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="1985"/>
+<httpSample t="13" lt="13" ts="1491238522158" s="true" lb="/P1-base/procesapago" rc="200" rm="OK" tn="Consultas 1-1" dt="text" by="694"/>
+
+</testResults>
+>

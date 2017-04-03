@@ -23,24 +23,55 @@ abort() { >&2 ERR "$1"; exit 1; }
 # ----------------------------------------------------------------------------
 
 # Parametros de configuracion
-inc=50
-max=500
-ramp_time=1
+if [[ $# -eq 3 ]]; then
+	end="${3}"
+	inc="${2}"
+	start="${1}"
+elif [[ $# -eq 2 ]]; then
+	end="${2}"
+	inc="50"
+	start="${1}"
+elif [[ $# -eq 1 ]]; then
+	end="$1"
+	inc="50"
+	start="$inc"
+else
+	abort "Numero de parametros incorrecto ($#)"
+fi
+ramp_time=10
 server=10.1.11.2
+cmdrunner="$HOME/.si2jmeter/apache-jmeter-2.13/lib/ext/CMDRunner.jar"
+outdir="datos"
 
-for ((i=$inc; i <= $max; i+= $inc)); do
+if [[ -d "$outdir" ]]; then
+	WARN "Ya existe un directorio $outdir"
+else
+	mkdir datos
+fi
 
-	outfile="curva/test$(printf %04i $i)"
+INFO 'Limpiando la base de datos.'
+psql -h 10.1.11.1 -U alumnodb visa <<< 'truncate table pago'
+
+for ((i=$start; i <= $end; i+= $inc)); do
+
+	outfile="$outdir/test$(printf %04i $i)"
 
 	INFO "Ejecutando prueba para $(printf %4i $i) usuarios"
-	(echo jmeter -n -t P2_ej6.jmx -Jthreads="$i" -Joutfile="$outfile.jmeter.csv"; sleep $((RANDOM % 3 + ramp_time + 5))) &
+	jmeter -n -t P2-curvaProductividad.jmx -l "$outfile.jtl" -Jthreads="$i" &
 	jmeter_pid=$!
 
 	sleep "$ramp_time"
-	(echo ./si-monitor.sh "$server" "> $outfile.monitor.dsv"; sleep 1000) &
-	monitor_pid=$!
+	INFO 'Arrancando el monitor'
+	./si2-monitor.sh "$server" > "$outfile.mon.dsv" &
 
 	wait "$jmeter_pid"
-	kill "$monitor_pid" > /dev/null 2>&1 && echo 'RIPPED'
-	echo
+	killall "si2-monitor.sh" || : # Nunca falles!
+
+	INFO 'Terminado la prueba. Generando el AggregateReport'
+	java -jar "$cmdrunner" --tool Reporter --plugin-type AggregateReport --generate-csv "$outfile.tab.csv" --input-jtl "$outfile.jtl"
+
+	INFO 'Limpiando la base de datos.'
+	psql -h 10.1.11.1 -U alumnodb visa <<< 'truncate table pago'
+
+	echo # Linea en blanco 
 done

@@ -1,0 +1,4 @@
+sampler_label,aggregate_report_count,average,aggregate_report_median,aggregate_report_90%_line,aggregate_report_min,aggregate_report_max,aggregate_report_error%,aggregate_report_rate,aggregate_report_bandwidth,aggregate_report_stddev
+/P1-base/comienzapago,17010,43,35,95,1,200,0.00%,284.0,551.3,39.46
+/P1-base/procesapago,17010,55,47,107,4,210,0.00%,281.6,345.0,40.30
+TOTAL,34020,49,41,101,1,210,0.00%,544.6,862.0,40.29
