@@ -62,13 +62,15 @@ Para evitar repetición, hemos comprobado que se podría mover la variable aleat
 Hemos preparado los PCs con el servidor en \codigo{10.1.11.1} y el cliente en \codigo{10.1.11.2}.
 
 %% (Salida del comando free)
-%\includegraphics{path/al.png}
+\includegraphics{free1.png}
+\includegraphics{free2.png}
 %% (Salida del comando nmon)
-%\includegraphics{path/al.png}
+\includegraphics{nmon1.png}
+\includegraphics{nmon2.png}
+
+Como se puede ver, los cambios entre ambos PCs son poco apreciables teniendo un poco más de memoria en cacheada el PC1, probablemente debido al despliegue del servidor en el mismo.
 
 \ejercicio[3]{Ejecutando las pruebas}
-% TODO: Insertar foto verificando que los pagos son correctos?
-% Anote los resultados del informe agregado en la memoria de la práctica.
 A continuación están los resultados del informe agregado:
 \begin{table}[h!]
 	\centering
@@ -87,7 +89,7 @@ Mediana, P90\%.
 	\caption{Informe de P1-ejb}
 	\TableAggregateCsv{aggregate2.csv}
 \end{table}
-% Compare los resultados obtenidos con los anteriores.
+
 El rendimiento del P1-ejb local es considerablemente mejor que la versión con el ejb local.
 
 \bloque[2]{Monitorización}
@@ -95,19 +97,22 @@ El rendimiento del P1-ejb local es considerablemente mejor que la versión con e
 \ejercicio[4]{Adaptando la configuración del servidor}
 
 \pregunta[1]{Revisar el script \comando{si2-monitor.sh} e indicar los mandatos \comando{asadmin} que debemos ejecutar en el Host PC1 para averiguar el Max Queue Size del Servicio HTTP y el Maximum Pool Size de la DB.}
+Maximum Queue Size HTTP: asadmin get -m "server.network.http-listener-1.connection-queue.countqueued-count"
+Maximum Pool Size: server.resources.VisaPool.numconnused-current
 
 \ejercicio[5]{Valores de configuración de Glassfish}
-Esta en la hoja de calculo.
+Está en la hoja de calculo.
 
 \ejercicio[6]{Ejecutando las pruebas de nuevo}
 
 \pregunta[1]{A la vista de los resultados, ¿qué elemento de proceso le parece más costosa? ¿Red? ¿CPU? ¿Acceso a datos? En otras palabras, ¿cuál fue el elemento más utilizado durante la monitorización con \comando{nmon} en un entorno virtual? (CPU, Memoria, disco,...)}
-Los elementos más utilizados fueron en primer lugar la CPU que llegó a valores de casi del 50 porciento de uso junto a la red, que también vió un uso intensivo con picos de 137 KB/s. El recurso que más CPU utilizó fue de manera clara el proceso servidor. Por otro lado, la memoria del sistema no se vio afectada practicamente por la prueba, con cambios menores al 1 porciento.
+Los elementos más utilizados fueron en primer lugar la CPU que llegó a valores de casi del $50\%$ de uso junto a la red, que también vió un uso intensivo con picos de 137 KB/s. El recurso que más CPU utilizó fue de manera clara el proceso servidor. Por otro lado, la memoria del sistema no se vio afectada practicamente por la prueba, con cambios menores al $1\%$.
 
 \pregunta[2]{¿Le parece una situación realista la simulada en este ejercicio? ¿Por qué?}
-No es una situación realista, ya que en un sistema real, el uso de memoria será mayor al recibir las peticiones de clientes de manera paralela, por tanto pudiendo encontrarse en una situación de mucho uso de escrituras a bases de datos de manera paralela. Tambien se podría ver afectado tanto el uso de la red como el de CPU, incrementando ambos si se diera la situación realista de una paralelización de las peticiones de los clientes.
+No es una situación realista, ya que en un sistema real, el uso de memoria será mayor al recibir las peticiones de clientes en mayor cantidad, por tanto pudiendo encontrarse en una situación de mucho uso de escrituras a bases de datos de manera paralela. Tambien se podría ver afectado tanto el uso de la red como el de CPU, incrementando ambos si se diera la situación realista de una paralelización de las peticiones de los clientes, y pudiendo saturar el servidor.
 
 \pregunta[3]{Teniendo en cuenta cuál ha sido el elemento más saturado, proponga otro esquema de despliegue que resuelva esa situación.}
+Al ser la CPU el elemento más saturado, para poder resolverlo habría que o bien mejorar el procesador dentro de la máquina servidor o desplegar la aplicación en un cluster que permita balancear la carga entre varias máquinas para poder atender con cierto margen las peticiones sin sobrecarga.
 
 \bloque[3]{Curva de productividad para P1-base}
 
@@ -115,8 +120,24 @@ No es una situación realista, ya que en un sistema real, el uso de memoria ser�
 Las mediciones han sido tomadas un viernes y un lunes por la tarde.
 
 \pregunta{¿Cómo debemos invocar a nmon para recolectar muestras cada 5 segundos durante 10 minutos que incluyan los top processes en el fichero log-file.nmon?}
+nmon -F log-file.nmon -s 5 -t -c 120 
 
-\bloque[4]{Conclusiones}
+\ejercicio[9]{Conclusiones}
+
+\pregunta{A partir de la curva obtenida, determinar para cuántos usuarios conectados se produce el punto de 
+saturación, cuál es el máximo throughput que se alcanza en el mismo, y el throughput máximo que se obtiene en zona de saturación.}
+Para 1800 usuarios se produce el punto de saturación, el throughput en el punto de saturación es de 558.3 peticiones por segundo y el máximo throughput obtenido es de 588 peticiones por segundo.
+
+\pregunta{Analizando los valores de monitorización que se han ido obteniendo durante la elaboración de la
+curva, sugerir el parámetro del servidor de aplicaciones que se cambiaría para obtener el punto de
+saturación en un número mayor de usuarios.}
+Dentro de nuestros parámetros, los candidatos más claros para mejorar la saturación del servidor serían el número de clientes permitidos en cola, y el número de procesadores habilitados para el servidor. Aumentando ambos valores se debería mejorar el rendimiento. Probaremos a aumentar de 1 a 2 procesadores para comprobar está hipótesis.
+
+\pregunta{Realizar el ajuste correspondiente en el servidor de aplicaciones, reiniciarlo y tomar una nueva
+muestra cercana al punto de saturación. ¿Ha mejorado el rendimiento del sistema? Documente en
+la memoria de prácticas el cambio realizado y la mejora obtenida.}
+Se ha aumentado el número de procesadores a 2. Con ello en el punto de saturación de 1800 usuarios se ha obtenido que el throughput es de 584 peticiones por segundo, por tanto no hemos conseguido obtener una mejora substancial del sistema, siendo esta unicamente de 26 peticiones por segundo.
+
 
 
 \end{document}
