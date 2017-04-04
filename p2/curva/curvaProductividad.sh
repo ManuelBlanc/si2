@@ -3,6 +3,8 @@
 # Modo sano: se aborta si se encuentra un error o variable no definida
 set -eu
 
+cd "$(basename ${BASH_SOURCE[0]})"
+
 # Codigos de escape para dar formato (vease `man tput`)
 NORMAL=$(tput sgr0)
 BOLD=$(tput bold)
@@ -52,12 +54,12 @@ fi
 INFO 'Limpiando la base de datos.'
 psql -h 10.1.11.1 -U alumnodb visa <<< 'truncate table pago'
 
-for ((i=$start; i <= $end; i+= $inc)); do
+for ((i=$start; i <= $end; i += $inc)); do
 
 	outfile="$outdir/test$(printf %04i $i)"
 
 	INFO "Ejecutando prueba para $(printf %4i $i) usuarios"
-	jmeter -n -t P2-curvaProductividad.jmx -l "$outfile.jtl" -Jthreads="$i" &
+	jmeter -n -t ../P2/P2-curvaProductividad.jmx -l "$outfile.jtl" -Jthreads="$i" &
 	jmeter_pid=$!
 
 	sleep "$ramp_time"

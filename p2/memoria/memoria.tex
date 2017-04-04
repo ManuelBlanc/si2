@@ -1,11 +1,20 @@
 \documentclass[a4paper, 12pt, spanish]{memoria}
 
+\usepackage{si2}
+\ConfigurarDocumento{
+	practica = {2}{Práctica 2: Rendimiento},
+}
+
 \usepackage{booktabs}
 \usepackage{pgfplotstable}
 \pgfplotsset{compat=1.8}
-\pgfplotstableset{
+
+\newcommand{\TableAggregateCsv}[2][]{{
+\pgfplotstabletypeset[%
+	% booktabs
 	every head row/.style={before row={\toprule},after row={\midrule}},
 	every last row/.style={after row=\bottomrule},
+	% formatos
 	/pgf/number format/fixed numeric/.style={
 		/pgfplots/table/numeric type,
 		fixed,
@@ -18,54 +27,8 @@
 			/pgfplots/table/@cell content/.add={}{$\%$},
 		},
 	}
-}
-
-
-\usepackage{si2}
-\ConfigurarDocumento{
-	practica = {2}{Práctica 2: Rendimiento},
-}
-
-\newcommand{\MostrarAggregateCsvH}[1]{{%
-%% Leemos el fichero
-\pgfplotstableread[ignore chars={\%},col sep=comma,]{#1}\loadedtable
-%% Lo transponemos
-\pgfplotstabletranspose[%
-	string type,
-	columns={sampler_label,aggregate_report_count,average,aggregate_report_median,aggregate_report_90_line,aggregate_report_min,aggregate_report_max,aggregate_report_error,aggregate_report_rate,aggregate_report_bandwidth},
-	colnames from=sampler_label,
-	input colnames to=sampler_label,
-	]\transposedtable\loadedtable
-\pgfplotstabletypeset[%
-	string type,
-	row style/.style 2 args={
-		every row ##1 column 1/.style={##2},
-		every row ##1 column 2/.style={##2},
-		every row ##1 column 3/.style={##2},
-		every row ##1 column 4/.style={##2},
-	},
-	columns/sampler_label/.style={
-		column name={Etiqueta},
-		column type=l,
-		string replace={aggregate_report_count}{Muestras},
-		string replace={average}{Media},
-		string replace={aggregate_report_median}{Mediana},
-		string replace={aggregate_report_90_line}{Percentil $90\%$},
-		string replace={aggregate_report_min}{Mínimo},
-		string replace={aggregate_report_max}{Máximo},
-		string replace={aggregate_report_error}{Porcentaje de error},
-		string replace={aggregate_report_rate}{Tasa},
-		string replace={aggregate_report_bandwidth}{Ancho de banda},
-	},
-	row style={6}{fixed numeric=1, format percent},
-	row style={7}{fixed numeric=2},
-	row style={8}{fixed numeric=2},
-	]\transposedtable
-}}
-
-\newcommand{\MostrarAggregateCsv}[2][]{{
-\pgfplotstabletypeset[%
 	font={\footnotesize},
+	% especifico a la tabla
 	ignore chars={\%},col sep=comma,
 	columns/sampler_label/.style             	= {column name={Nombre},string type,column type=l       	},
 	columns/aggregate_report_count/.style    	= {column name={Muestras}                               	},
@@ -80,6 +43,8 @@
 	#1
 	]{#2}
 }}
+
+\newcommand{\comando}[1]{\texttt{#1}}
 
 % =========================================================================================================
 \begin{document}
@@ -108,7 +73,7 @@ A continuación están los resultados del informe agregado:
 \begin{table}[h!]
 	\centering
 	\caption{Informe de P1-base, P1-ws y P1-ejb-remoto}
-	\MostrarAggregateCsv{aggregate.csv}
+	\TableAggregateCsv{aggregate.csv}
 \end{table}
 
 \pregunta[1]{¿Cuál de los resultados le parece el mejor? ¿Por qué?}
@@ -120,23 +85,23 @@ Mediana, P90\%.
 \begin{table}[h!]
 	\centering
 	\caption{Informe de P1-ejb}
-	\MostrarAggregateCsv{aggregate2.csv}
+	\TableAggregateCsv{aggregate2.csv}
 \end{table}
 % Compare los resultados obtenidos con los anteriores.
-El rendimiento del P1-ejb local es considerablemente mejor que la version con el ejb local.
+El rendimiento del P1-ejb local es considerablemente mejor que la versión con el ejb local.
 
 \bloque[2]{Monitorización}
 
 \ejercicio[4]{Adaptando la configuración del servidor}
-1. Max Queue Size del Servicio HTTP
-2. Maximum Pool Size del Pool de conexiones a nuestra DB
 
-\ejercicio[5]{Valores de configuración de glassfish}
+\pregunta[1]{Revisar el script \comando{si2-monitor.sh} e indicar los mandatos \comando{asadmin} que debemos ejecutar en el Host PC1 para averiguar el Max Queue Size del Servicio HTTP y el Maximum Pool Size de la DB.}
+
+\ejercicio[5]{Valores de configuración de Glassfish}
 Esta en la hoja de calculo.
 
 \ejercicio[6]{Ejecutando las pruebas de nuevo}
 
-\pregunta[1]{A la vista de los resultados, ¿qué elemento de proceso le parece más costosa? ¿Red? ¿CPU? ¿Acceso a datos? En otras palabras, ¿cuál fue el elemento más utilizado durante la monitorización con nmon en un entorno virtual? (CPU, Memoria, disco,...)}
+\pregunta[1]{A la vista de los resultados, ¿qué elemento de proceso le parece más costosa? ¿Red? ¿CPU? ¿Acceso a datos? En otras palabras, ¿cuál fue el elemento más utilizado durante la monitorización con \comando{nmon} en un entorno virtual? (CPU, Memoria, disco,...)}
 
 \pregunta[2]{¿Le parece una situación realista la simulada en este ejercicio? ¿Por qué?}
 
@@ -145,7 +110,12 @@ Esta en la hoja de calculo.
 \bloque[3]{Curva de productividad para P1-base}
 
 \ejercicio[8]{Curva de productividad}
+Las mediciones han sido tomadas un viernes y un lunes por la tarde.
+
 \pregunta{¿Cómo debemos invocar a nmon para recolectar muestras cada 5 segundos durante 10 minutos que incluyan los top processes en el fichero log-file.nmon?}
+
+\bloque[4]{Conclusiones}
+
 
 \end{document}
 

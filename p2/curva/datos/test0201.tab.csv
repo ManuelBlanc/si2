@@ -1,4 +1,4 @@
 sampler_label,aggregate_report_count,average,aggregate_report_median,aggregate_report_90%_line,aggregate_report_min,aggregate_report_max,aggregate_report_error%,aggregate_report_rate,aggregate_report_bandwidth,aggregate_report_stddev
-/P1-base/comienzapago,4020,3,3,6,1,25,0.00%,20.7,40.2,2.00
-/P1-base/procesapago,4020,12,12,17,6,36,0.00%,20.7,25.3,3.58
-TOTAL,8040,8,8,15,1,36,0.00%,40.9,64.6,5.19
+/P1-base/comienzapago,2020,3,3,6,1,25,0.00%,20.7,40.2,2.00
+/P1-base/procesapago,2020,12,12,17,6,36,0.00%,20.7,25.3,3.58
+TOTAL,4020,8,8,15,1,36,0.00%,40.9,64.6,5.19
