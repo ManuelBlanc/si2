@@ -102,8 +102,10 @@ Esta en la hoja de calculo.
 \ejercicio[6]{Ejecutando las pruebas de nuevo}
 
 \pregunta[1]{A la vista de los resultados, ¿qué elemento de proceso le parece más costosa? ¿Red? ¿CPU? ¿Acceso a datos? En otras palabras, ¿cuál fue el elemento más utilizado durante la monitorización con \comando{nmon} en un entorno virtual? (CPU, Memoria, disco,...)}
+Los elementos más utilizados fueron en primer lugar la CPU que llegó a valores de casi del 50 porciento de uso junto a la red, que también vió un uso intensivo con picos de 137 KB/s. El recurso que más CPU utilizó fue de manera clara el proceso servidor. Por otro lado, la memoria del sistema no se vio afectada practicamente por la prueba, con cambios menores al 1 porciento.
 
 \pregunta[2]{¿Le parece una situación realista la simulada en este ejercicio? ¿Por qué?}
+No es una situación realista, ya que en un sistema real, el uso de memoria será mayor al recibir las peticiones de clientes de manera paralela, por tanto pudiendo encontrarse en una situación de mucho uso de escrituras a bases de datos de manera paralela. Tambien se podría ver afectado tanto el uso de la red como el de CPU, incrementando ambos si se diera la situación realista de una paralelización de las peticiones de los clientes.
 
 \pregunta[3]{Teniendo en cuenta cuál ha sido el elemento más saturado, proponga otro esquema de despliegue que resuelva esa situación.}
 
