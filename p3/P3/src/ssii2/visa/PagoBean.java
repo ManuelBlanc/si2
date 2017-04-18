@@ -24,6 +24,9 @@ public class PagoBean {
         private String codRespuesta;    
         private String idAutorizacion;  
 
+        /* Practica 3 */
+        private String instancia, ip;
+
     /**
      * @return el ID de transacci&oacute;n
      */
@@ -135,4 +138,11 @@ public class PagoBean {
     public void setTarjeta(TarjetaBean tarjeta) {
         this.tarjeta = tarjeta;
     }
+
+    /* Practica 3 */
+    public void   setIp(String ip) { this.ip = ip;   }
+    public String getIp()          { return this.ip; }
+
+    public void   setInstancia(String instancia) { this.instancia = instancia; }
+    public String getInstancia()                 { return this.instancia;      }
 }
