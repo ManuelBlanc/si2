@@ -2,11 +2,6 @@
 
 set -eu
 
-ssh si2@10.1.11.1 'rm -f ~/.ssh/known_hosts'
-ssh si2@10.1.11.1 'ssh-keygen -t rsa -N "" -f /home/si2/.ssh/id_rsa'
-ssh si2@10.1.11.1 'ssh-copy-id -R 10.1.11.1 si2srv02'
-ssh si2@10.1.11.1 'ssh-copy-id -R 10.1.11.1 si2srv03'
-
 ssh si2@10.1.11.1 <<'EOF'
 
 export AS_ADMIN_USER=admin
@@ -27,10 +22,9 @@ asadmin create-instance --cluster SI2Cluster --node Node02 Instance02
 asadmin list-instances -l
 asadmin start-cluster SI2Cluster
 
-asadmin delete-jvm-options -client:-Xmx512m:-XX\\:MaxPermSize=192m
-asadmin create-jvm-options -server:-Xms128m:-Xmx128m:-XX\\:MaxPermSize=96m
+asadmin delete-jvm-options --target SI2Cluster -client:-Xmx512m:-XX\\:MaxPermSize=192m
+asadmin create-jvm-options --target SI2Cluster -server:-Xms128m:-Xmx128m:-XX\\:MaxPermSize=96m
 asadmin stop-domain
 asadmin start-domain
-
 
 EOF
