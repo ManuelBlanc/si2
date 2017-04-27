@@ -59,7 +59,7 @@
 \author{\@autores}
 
 % Para graficos
-%\graphicspath{ {img/} }
+\graphicspath{ {img/} }
 \newcommand{\imagen}[2][1]{\includegraphics[width=#1\textwidth]{#2}}
 \newenvironment{galeria}{
 	\renewcommand{\imagen}[2][1.0]{
