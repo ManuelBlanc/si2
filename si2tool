@@ -154,15 +154,16 @@ cmd__setup() {
 	export J2EE_HOME="$VM_J2EE"
 	export PATH="$PATH:\$J2EE_HOME/bin"
 
+	# asadmin
+	export AS_ADMIN_USER=admin
+	export AS_ADMIN_PASSWORDFILE=/opt/SI2/passwordfile
+
 	# Algunos aliases utiles
 	alias ..='cd ..'
 	export LS_COLORS='*~=37:di=34:fi=0:ln=32:pi=5:so=33:bd=33:cd=33:or=92:mi=92:ex=31'
 	alias l='ls -F --color'
 	alias ll='l -Ghal'
 	EOF
-
-	# Arrancamos el dominio
-	cmd__asadmin start-domain domain1
 }
 
 #= ant @cmd

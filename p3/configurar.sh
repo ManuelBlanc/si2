@@ -2,7 +2,13 @@
 
 set -eu
 
+ssh si2@10.1.11.1 <<EOF
+scp proxy_balancer.conf si2@10.1.11.1:/etc/apache2/mods-available/
+EOF
+
 ssh si2@10.1.11.1 <<'EOF'
+scp 
+EOF
 
 export AS_ADMIN_USER=admin
 export AS_ADMIN_PASSWORDFILE=/opt/SI2/passwordfile
@@ -22,7 +28,7 @@ asadmin create-instance --cluster SI2Cluster --node Node02 Instance02
 asadmin list-instances -l
 asadmin start-cluster SI2Cluster
 
-asadmin delete-jvm-options --target SI2Cluster -client:-Xmx512m:-XX\\:MaxPermSize=192m
+asadmin delete-jvm-options --target SI2Cluster -server:-client:-Xmx512m:-XX\\:MaxPermSize=192m
 asadmin create-jvm-options --target SI2Cluster -server:-Xms128m:-Xmx128m:-XX\\:MaxPermSize=96m
 asadmin stop-domain
 asadmin start-domain

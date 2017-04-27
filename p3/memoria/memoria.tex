@@ -1,0 +1,74 @@
+\documentclass[a4paper, 12pt, spanish]{memoria}
+
+\usepackage{si2}
+\ConfigurarDocumento{
+	practica = {2}{Práctica 2: Rendimiento},
+}
+
+\usepackage{booktabs}
+\usepackage{pgfplotstable}
+
+\newcommand{\comando}[1]{\texttt{#1}}
+
+% =========================================================================================================
+\begin{document}
+
+\portada\indice
+
+\bloque[1]{Mediciones de rendimiento con JMeter}
+
+\ejercicio[1]{Preparación de las máquinas virtuales}
+
+\imagen{ej1.1}
+\imagen{ej1.2}
+
+\ejercicio[2]{Preparación del cluster}
+
+\imagen{ej2}
+
+\ejercicio[3]{Prueba del cluster}
+
+\imagen{ej3.1}
+\imagen{ej3.2}
+
+\ejercicio[3]{Prueba del cluster}
+
+\imagen{ej3.1}
+\imagen{ej3.2}
+
+\ejercicio[4]{Afinidad de sesión}
+
+\imagen{ej4.1}
+\imagen{ej4.2}
+
+En la primera imagense puede observar que en el campo Content solamente aparece una ristra de caracteres, mientras que en la segunda tras esa ristra, aparece el nombre de la instancia que sirve a la petición. Esta diferencia permite que las peticiones funcionen sin ningún tipo de problema, y esto es debido a que se utiliza una etiqueta para marcar la cookie que identifica la instancia para que reenvie la petición a la misma instancia. Si no es así como en el primer caso, y el balanceador decide cambiar a que instancia manda la petición en mitad de la misma, se puede perder la información de la petición debido a ese cambio, produciendose el fallo.
+
+
+\ejercicio[5]{Prueba del balanceador}
+
+\imagen{ej5.1}
+\imagen{ej5.2}
+
+\ejercicio[6]{Comprobación del proceso de \italica{fail-over}}
+
+\imagen{ej6.1}
+
+\ejercicio[7]{Comprobación del proceso de \italica{fail-back}}
+
+\imagen{ej7.1}
+
+\ejercicio[8]{Fallo en el transcurso de una sesión}
+
+\imagen{ej8.1}
+\imagen{ej8.2}
+
+Parecido al caso de jvmRoute, si la instancia que sirve inicialmente a una petición falla por algún motivo en el medio de la misma, la instancia restante debe encargarse de esa petición, pero al no tener los datos de ella, no va a poder procesarla y saltará el error.
+
+\ejercicio[9]{JMeter}
+
+\imagen{ej9.1}
+
+El algoritmo que sigue es de repartición del $50\%$, alternando de uno en uno las instancias. Hemos ordenado todos los pagos de la tabla según fecha para poder observar que efectivamente era así. También hemos buscado en Internet el algoritmo que Apache utiliza para el balanceador y utiliza un algoritmo de Round Robin, que en el caso de dos instancias como el nuestro confirma nuestra conclusión.
+
+\end{document}
+
