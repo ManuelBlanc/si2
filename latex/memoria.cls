@@ -6,8 +6,8 @@
 \NeedsTeXFormat{LaTeX2e}
 
 \def\filename{memoria}
-\def\fileversion{v1.0}
-\def\filedate{2016/10/02}
+\def\fileversion{v1.1}
+\def\filedate{2017/04/29}
 
 \ProvidesClass{memoria}[\filedate \fileversion Clase para memorias]
 
@@ -38,7 +38,7 @@
 \RequirePackage{environ}                   	% Declaracion de environments mejorada
 
 % Datos sobre el articulo
-\pgfkeys{
+\pgfqkeys{/memoria}{
 	universidad/.store in	= \@universidad,
 	grado/.store in      	= \@grado,
 	asignatura/.store in 	= \@asignatura,
@@ -53,7 +53,7 @@
 	autores    	= <AUTORES>,
 	practica   	= {0}{PRACTICA},
 }
-\NewDocumentCommand{\ConfigurarDocumento}{m}{\pgfkeys{#1}}
+\NewDocumentCommand{\ConfigurarDocumento}{m}{\pgfqkeys{/memoria}{#1}}
 
 \title{\@practica \\ \@asignatura}
 \author{\@autores}
@@ -61,19 +61,6 @@
 % Para graficos
 \graphicspath{ {img/} }
 \newcommand{\imagen}[2][1]{\includegraphics[width=#1\textwidth]{#2}}
-\newenvironment{galeria}{
-	\renewcommand{\imagen}[2][1.0]{
-		\begin{subfigure}{##1\textwidth}
-			\includegraphics[width=\textwidth]{##2}
-		\end{subfigure}% eat newline
-	}
-
-	\begin{figure}[h!]
-	\centering
-}
-{
-	\end{figure}
-}
 
 % Y para tablas
 \newenvironment{grupotablas}{%

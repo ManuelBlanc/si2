@@ -2,73 +2,117 @@
 
 \usepackage{si2}
 \ConfigurarDocumento{
-	practica = {2}{Práctica 2: Rendimiento},
+	practica = {3}{Práctica 3: Seguridad y Disponibilidad},
 }
 
-\usepackage{booktabs}
-\usepackage{pgfplotstable}
+\usepackage{subcaption}
 
 \newcommand{\comando}[1]{\texttt{#1}}
+\newcommand{\italica}[1]{\textit{#1}}
+
+\newenvironment{galeria}[1][h]{%
+	\renewcommand{\imagen}[2][]{
+		\pgfqkeys{/memoria/imagen}{
+			box width/.initial	= 0,
+			width/.initial    	= 0.95,
+			pos/.initial      	= b,
+			inner pos/.initial	= c,
+			caption/.initial  	= {Caption no definida!},
+			##1
+		}
+		\subcaptionbox%
+		%[list-entry]
+		{\pgfkeysvalueof{/memoria/imagen/caption}}%
+		%[.4\linewidth]%
+		%[\pgfkeysvalueof{/memoria/imagen/inner pos}]
+		{\includegraphics[width=\pgfkeysvalueof{/memoria/imagen/width}\textwidth]{##2}}
+	}
+	\begin{figure}[#1]\centering
+}{%
+	\end{figure}%
+}
 
 % =========================================================================================================
 \begin{document}
 
 \portada\indice
 
-\bloque[1]{Mediciones de rendimiento con JMeter}
+\ejercicio[1]{Configuración de acceso por SSH}
+Hemos configurado el acceso a las maquinas virtuales por SSH. Para copiar las claves publicas, hemos hecho uso del comando \comando{ssh-copy-id} que simplifica la copia.
+\begin{galeria}[hb!]
+	\centering
+	\imagen[caption={Conexión a si2srv02},width=0.75]{ej1_1.png}
+	\vspace{2em}
+	\imagen[caption={Conexión a si2srv03},width=0.75]{ej1_2.png}
+	\caption{Salida del comando \comando{ssh -v}}
+\end{galeria}
 
-\ejercicio[1]{Preparación de las máquinas virtuales}
+\pagebreak\ejercicio[2]{Configuración del cluster}
 
-\imagen{ej1.1}
-\imagen{ej1.2}
-
-\ejercicio[2]{Preparación del cluster}
-
-\imagen{ej2}
-
-\ejercicio[3]{Prueba del cluster}
-
-\imagen{ej3.1}
-\imagen{ej3.2}
-
-\ejercicio[3]{Prueba del cluster}
-
-\imagen{ej3.1}
-\imagen{ej3.2}
-
-\ejercicio[4]{Afinidad de sesión}
-
-\imagen{ej4.1}
-\imagen{ej4.2}
-
-En la primera imagense puede observar que en el campo Content solamente aparece una ristra de caracteres, mientras que en la segunda tras esa ristra, aparece el nombre de la instancia que sirve a la petición. Esta diferencia permite que las peticiones funcionen sin ningún tipo de problema, y esto es debido a que se utiliza una etiqueta para marcar la cookie que identifica la instancia para que reenvie la petición a la misma instancia. Si no es así como en el primer caso, y el balanceador decide cambiar a que instancia manda la petición en mitad de la misma, se puede perder la información de la petición debido a ese cambio, produciendose el fallo.
+\begin{galeria}[h!]
+	\imagen[caption={Listado de instancias y PIDs de Java}]{ej2_1.png}
+	\vspace{2em}
+	\imagen[caption={Configuración en el panel de Glassfish}]{ej2_2.png}
+	\caption{Evidencias obtenidas}
+\end{galeria}
 
 
-\ejercicio[5]{Prueba del balanceador}
+\pagebreak\ejercicio[3]{Prueba del cluster}
+Hemos realizado una prueba unitaria en cada instancia para verificar que funcionan. Notese que se prueba con \textit{Use prepared} tanto en \textit{True} como \textit{False}.
+\begin{galeria}
+	\imagen[width={0.75},caption={Antes}]{ej3_1.png}
+	\vspace{2em}
+	\imagen[width={0.75},caption={Después}]{ej3_2.png}
+	\caption{Pruebas unitarias}
+\end{galeria}
 
-\imagen{ej5.1}
-\imagen{ej5.2}
+El puerto en el que escucha nuestra aplicación Java es el $28080$ en el caso de ambas instancias. (Nota: en la configuración de asadmin este dato se guarda en el atributo \codigo{HTTP\_LISTENER\_PORT}.)
 
-\ejercicio[6]{Comprobación del proceso de \italica{fail-over}}
+\pagebreak\ejercicio[4]{Afinidad de sesión}
 
-\imagen{ej6.1}
+\begin{galeria}
+	\imagen[width=0.45,caption={Sin afinidad de sesión}]{ej4_1.png}
+	\imagen[width=0.45,caption={Con afinidad de sesión}]{ej4_2.png}
+	\caption{Galletas del navegador}
+\end{galeria}
 
-\ejercicio[7]{Comprobación del proceso de \italica{fail-back}}
+En la primera imagen se puede observar que en el campo \codigo{Content} solamente aparece una ristra de caracteres, mientras que en la segunda tras esa ristra, aparece el nombre de la instancia que sirve a la petición. Esta diferencia permite que las peticiones funcionen sin ningún tipo de problema, y esto es debido a que se utiliza una etiqueta para marcar la galleta que identifica la instancia para que reenvié la petición a la misma instancia. Si no es así como en el primer caso, y el balanceador decide cambiar a que instancia manda la petición en mitad de la misma, se puede perder la información de la petición debido a ese cambio, produciéndose el fallo.
 
-\imagen{ej7.1}
+\pagebreak\ejercicio[5]{Prueba del balanceador}
 
-\ejercicio[8]{Fallo en el transcurso de una sesión}
+\begin{galeria}
+	\imagen[width=0.75,caption={Pruebas desde un ordenador}]{ej5_1.png}
+	\vspace{2em}
+	\imagen[width=0.75,caption={Pruebas desde otro ordenador}]{ej5_2.png}
+	\caption{Evidencias obtenidas}
+\end{galeria}
 
-\imagen{ej8.1}
-\imagen{ej8.2}
 
-Parecido al caso de jvmRoute, si la instancia que sirve inicialmente a una petición falla por algún motivo en el medio de la misma, la instancia restante debe encargarse de esa petición, pero al no tener los datos de ella, no va a poder procesarla y saltará el error.
+\pagebreak\ejercicio[6]{Comprobación del proceso de \italica{fail-over}}
+Ya que ambas máquinas recibieron el mismo número de peticiones, decidimos matar la instancia 1 arbitrariamente. Hemos cambiado el \textit{idcomercio} de $1$ a $2$ para marcar cuando cerramos forzosamente el proceso Java de la instancia 1.
+\begin{figure}[h!]\imagen{ej6_1.png}\caption{Proceso de fail-over}\end{figure}
 
-\ejercicio[9]{JMeter}
+\pagebreak\ejercicio[7]{Comprobación del proceso de \italica{fail-back}}
+En este ejercicio, rearrancamos la instancia 1 y comprobamos que las peticiones se vuelven a distribuir entre ambas instancias. Hemos cambiado de nuevo el \textit{idcomercio} de $2$ a $3$ para marcar cuando rearrancamos la instancia 1.
+\begin{figure}[h!]\imagen{ej7_1.png}\caption{Proceso de fail-back}\end{figure}
 
-\imagen{ej9.1}
+\pagebreak\ejercicio[8]{Fallo en el transcurso de una sesión}
 
-El algoritmo que sigue es de repartición del $50\%$, alternando de uno en uno las instancias. Hemos ordenado todos los pagos de la tabla según fecha para poder observar que efectivamente era así. También hemos buscado en Internet el algoritmo que Apache utiliza para el balanceador y utiliza un algoritmo de Round Robin, que en el caso de dos instancias como el nuestro confirma nuestra conclusión.
+\begin{galeria}
+	\imagen[width=0.85,caption={Rellenado /comienzapago}]{ej8_1.png}
+	\vspace{2em}
+	\imagen[width=0.85,caption={Rellenado /procesapago}]{ej8_2.png}
+	\caption{Evidencias obtenidas}
+\end{galeria}
+
+
+Parecido al caso de \codigo{jvmRoute}, si la instancia que sirve inicialmente a una petición falla por algún motivo en el medio de la misma, la instancia restante debe encargarse de esa petición, pero al no tener los datos de ella, no va a poder procesarla y saltará el error.
+
+\pagebreak\ejercicio[9]{Prueba de balanceo de carga con JMeter}
+
+\begin{figure}[h!]\imagen{ej9_1.png}\caption{Prueba con JMeter}\end{figure}
+
+El algoritmo que sigue es de repartición del $50\%$, alternando de uno en uno las instancias. Hemos ordenado todos los pagos de la tabla según fecha para poder observar que efectivamente era así. También hemos buscado en Internet el algoritmo que Apache utiliza para el balanceador por defecto y hemos encontrado que usa un algoritmo de Round Robin, que en el caso de dos instancias como el nuestro confirma nuestra conclusión. \\ Fuente: \url{https://httpd.apache.org/docs/2.4/mod/mod_proxy_balancer.html}
 
 \end{document}
 

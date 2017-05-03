@@ -9,8 +9,8 @@ $out_dir = $aux_dir = 'out';
 $pdf_mode = 1; $postscript_mode = $dvi_mode = 0;
 
 # Abre un visor de PDF cuando termina de compilar
-$preview_mode = 1;
-$preview_continuous_mode = 0;
+$preview_mode = 0;
+$preview_continuous_mode = 1;
 
 # Para que funcione el modo PVC bien
 $pvc_view_file_via_temporary = 1;
@@ -26,5 +26,3 @@ $ENV{'TEXINPUTS'}       = $dirname . ':' . ($ENV{'TEXINPUTS'} // '');
 $ENV{'max_print_line'}  = 1000; # Cualquier numero
 $ENV{'error_line'}      = 254; # Maximo: 254
 $ENV{'half_error_line'} = 238; # Maximo: error_line - 16
-
-print $ENV{'TEXINPUTS'};
